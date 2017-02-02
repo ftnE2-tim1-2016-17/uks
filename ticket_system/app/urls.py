@@ -2,8 +2,9 @@ from django.conf.urls import url
 from app import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^new$', views.PriorityCreate.as_view(), name='priority_form'),
-    url(r'^edit/(?P<pk>\d+)$', views.PriorityUpdate.as_view(), name='priority_update_form'),
+    url(r'^ProjectsList$', views.ProjectsIndexView.as_view(), name='project'),
+    url(r'^NewProject$', views.ProjectCreate.as_view(), name='project_form'),
+    url(r'^EditProject/(?P<pk>\d+)$', views.ProjectUpdate.as_view(), name='project_update_form'),
+    url(r'^DeleteProject/(?P<pk>\d+)$', views.ProjectDelete.as_view(), name='project_confirm_delete'),
 ]
 

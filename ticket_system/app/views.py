@@ -1,21 +1,31 @@
 from django.shortcuts import render
-
-# Create your views here.
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from app.models import Priority
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from app.models import Project
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the app index.")
+# Create your views here.
+
+class ProjectsIndexView(ListView):
+    template_name = 'app/project.html'
+    context_object_name = 'project_list'
+
+    def get_queryset(self):
+        return Project.objects.all()
 
 
-class PriorityCreate(CreateView):
-    model = Priority
-    fields = ['id', 'name', 'key', 'marker']
+class ProjectCreate(CreateView):
+    model = Project
+    fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate', 'project_owner']
 
 
-class PriorityUpdate(UpdateView):
-    model = Priority
-    fields = ['id', 'name', 'key', 'marker']
+class ProjectUpdate(UpdateView):
+    model = Project
+    fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate', 'project_owner']
     template_name_suffix = '_update_form'
+
+
+class ProjectDelete(DeleteView):
+    model = Project
+    success_url = reverse_lazy('ProjectsList')

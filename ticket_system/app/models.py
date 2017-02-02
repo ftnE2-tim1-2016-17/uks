@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.urlresolvers import reverse
 # Create your models here.
 
 
@@ -37,7 +37,6 @@ class Project(models.Model):
     description = models.TextField()
     startDate = models.DateField()
     endDate = models.DateField()
-
 
 class Status(models.Model):
     name = models.CharField(max_length=30)

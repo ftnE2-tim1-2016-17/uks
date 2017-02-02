@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+
+    <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Key</th>
+            <th>Description</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Owner</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for project in project_list %}
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.key }}</td>
+                <td>{{ project.description }}</td>
+                <td>{{ project.startDate }}</td>
+                <td>{{ project.endDate }}</td>
+                <td>{{ project.project_owner }}</td>
+                <td>
+                    <div align="left">
+                        <form action="{% url 'project_update_form' project.id %}" method="post" class="form">
+                            {% csrf_token %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "edit" %} Edit</button>
+                            {% endbuttons %}
+                        </form>
+                        <form action="{% url 'project_confirm_delete' project.id %}" method="post" class="form">
+                            {% csrf_token %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "trash" %} Delete</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock content %}
