@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 # Create your models here.
+from django.template.defaultfilters import default
 
 
 SILVER = "default"
@@ -41,6 +42,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('project')
 
+
 class Status(models.Model):
     name = models.CharField(max_length=30)
     key = models.CharField(unique=True, max_length=10)
@@ -71,6 +73,9 @@ class RoleOnProject(models.Model):
     role = models.CharField(max_length=20, choices=ROLE)
     user = models.ForeignKey(to=User, null=False, related_name="roleOnProject")
     project = models.ForeignKey(to=Project, null=False, related_name="roles")
+
+    def get_absolute_url(self):
+        return reverse('roleOnProject')
 
 
 class HistoryItem(models.Model):
