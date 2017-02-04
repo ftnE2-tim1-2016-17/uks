@@ -27,14 +27,14 @@
                 <td>{{ project.project_owner }}</td>
                 <td>
                     <div align="left">
-                        <form action="{% url 'project_update_form' project.id %}" method="post" class="form">
+                        <form action="{% url 'project_update_form' project.id %}" method="put" class="form">
                             {% csrf_token %}
                             {% buttons %}
                                 <button type="submit" class="btn btn-primary" >
                                     {% bootstrap_icon "edit" %} Edit</button>
                             {% endbuttons %}
                         </form>
-                        <form action="{% url 'project_confirm_delete' project.id %}" method="post" class="form">
+                        <form action="{% url 'project_confirm_delete' project.id %}" method="delete" class="form">
                             {% csrf_token %}
                             {% buttons %}
                                 <button type="submit" class="btn btn-primary" >
@@ -48,5 +48,13 @@
         </tbody>
     </table>
 
+
+        <form action="{% url 'project_form' %}" method="get" class="form">
+            {% csrf_token %}
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "insert" %} New project</button>
+            {% endbuttons %}
+        </form>
 
 {% endblock content %}

@@ -38,6 +38,9 @@ class Project(models.Model):
     startDate = models.DateField()
     endDate = models.DateField()
 
+    def get_absolute_url(self):
+        return reverse('project')
+
 class Status(models.Model):
     name = models.CharField(max_length=30)
     key = models.CharField(unique=True, max_length=10)

@@ -28,4 +28,4 @@ class ProjectUpdate(UpdateView):
 
 class ProjectDelete(DeleteView):
     model = Project
-    success_url = reverse_lazy('ProjectsList')
+    success_url = reverse_lazy('project')
