@@ -42,6 +42,9 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('project')
 
+    def __str__(self):
+        return self.name
+
 
 class Status(models.Model):
     name = models.CharField(max_length=30)

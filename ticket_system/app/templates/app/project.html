@@ -27,7 +27,7 @@
         <tbody>
         {% for project in project_list %}
             <tr>
-                <td>{{ project.name }}</td>
+                <td><a href="{% url 'project_detail' project.id %}">{{ project.name }}</a></td>
                 <td>{{ project.key }}</td>
                 <td>{{ project.description }}</td>
                 <td>{{ project.startDate }}</td>
