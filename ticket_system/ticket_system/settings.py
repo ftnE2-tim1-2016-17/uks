@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = 'django.contrib.auth.views.login'
+LOGIN_REDIRECT_URL = 'home'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+REGISTRATION_AUTO_LOGIN = True
 
 # Application definition
 
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap3',
     'app',
+    'bootstrap3',
 ]
 
 MIDDLEWARE = [
