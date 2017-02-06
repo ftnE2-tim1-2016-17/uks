@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block active %}
+    class="active"
+{% endblock active %}
+
+{% block content %}
+
+    <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>Project</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Title</th>
+            <th>Assigned To</th>
+            <th>Done percentage</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for issue in issue_list %}
+            <tr>
+                <td>{{ issue.project }}</td>
+                <td>{{ issue.type }}</td>
+                <td>{{ issue.status }}</td>
+                <td>{{ issue.priority }}</td>
+                <td><a href="{% url 'issue-detail' issue.id%}">{{ issue.title }}</a></td>
+                <td>{{ issue.assignedTo }}</td>
+                <td>{{ issue.donePercentage }} %</td>
+                <td>
+                    <div align="left">
+                        <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "edit" %} Edit</button>
+                            {% endbuttons %}
+                        </form>
+                        <form action="{% url 'issue-delete' issue.id %}" method="post" style="display: inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "trash" %} Delete</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div align="right">
+    <form action="{% url 'issue-add' %}" method="" style="display: inline">
+        {% csrf_token %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "trash" %} Add issue</button>
+        {% endbuttons %}
+    </form>
+    </div>
+
+{% endblock content %}
