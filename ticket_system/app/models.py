@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 # Create your models here.
 
@@ -38,11 +39,17 @@ class Project(models.Model):
     startDate = models.DateField()
     endDate = models.DateField()
 
+    def __str__(self):
+        return self.name
+
 
 class Status(models.Model):
     name = models.CharField(max_length=30)
     key = models.CharField(unique=True, max_length=10)
     marker = models.CharField(max_length=20, choices=MARKER_CHOICES, default=SILVER)
+
+    def __str__(self):
+        return self.name
 
 
 class Priority(models.Model):
@@ -50,19 +57,26 @@ class Priority(models.Model):
     key = models.CharField(unique=True, max_length=10)
     marker = models.CharField(max_length=20, choices=MARKER_CHOICES, default=SILVER)
 
+    def __str__(self):
+        return self.name
+
 
 class Issue(models.Model):
+    type = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
     startDate = models.DateField()
     endDate = models.DateField()
     createdBy = models.ForeignKey(to=User, null=False, related_name="createdIssues")
     assignedTo = models.ForeignKey(to=User, null=False, related_name="assignedIssues")
     project = models.ForeignKey(to=Project, null=False)
-    status = models.ForeignKey(to=Priority, null=False)
-    priority = models.ForeignKey(to=Status, null=False)
+    status = models.ForeignKey(to=Status, null=False)
+    priority = models.ForeignKey(to=Priority, null=False)
     description = models.TextField()
     spentTime = models.TimeField()
     donePercentage = models.PositiveIntegerField()
+
+    '''def get_absolute_url(self):
+        return reverse('detail', kwargs={'pk': self.pk})'''
 
 
 class RoleOnProject(models.Model):
