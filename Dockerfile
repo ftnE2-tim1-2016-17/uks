@@ -6,7 +6,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /ticket_system
-COPY requirements.txt ./
+COPY /ticket_system/requirements.txt ./
 RUN pip install -r requirements.txt
 COPY . .
 
