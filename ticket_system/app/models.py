@@ -93,7 +93,9 @@ class HistoryItem(models.Model):
 
 class Comment(HistoryItem):
     message = models.TextField()
-    dateTime = models.DateTimeField()
+
+    def __str__(self):
+        return self.message
 
 
 class Commit(HistoryItem):
