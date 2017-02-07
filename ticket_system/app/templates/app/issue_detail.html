@@ -43,10 +43,21 @@
         <br>
         <li><a href="#">History of {{ issue.title }}</a></li>
         <h2>Comments:</h2>
-        <blockquote>
-            <p>Comment1</p>
-            <footer>By user1</footer>
-        </blockquote>
+        <form action="{% url 'comment-create' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+            <textarea name="comment" rows="10" cols="60"></textarea>
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "floppy-disk" %} Comment</button>
+            {% endbuttons %}
+        </form>
+        {% for comment in comment_list %}
+            <blockquote>
+                <p>{{ comment }}</p>
+                <footer>{{ user }}</footer>
+            </blockquote>
+        {% endfor %}
 
     </div>
 {% endblock content %}
