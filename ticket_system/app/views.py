@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, DateInput
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
@@ -8,11 +8,18 @@ from app.models import Project, RoleOnProject
 # Create your views here.
 
 
+class DateInput(DateInput):
+    input_type = 'date'
+
+
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
         fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate', 'project_owner']
-
+        widgets = {
+            'startDate' : DateInput(),
+            'endDate' : DateInput()
+        }
 
 def project_list(request):
     project = Project.objects.all()
