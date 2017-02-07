@@ -8,20 +8,20 @@
 <div id="wrapper">
         <nav class="navbar navbar-default">
           <div class="container-fluid">
-            <div class="navbar-header">
-              <a class="navbar-brand" href="#">WebSiteName</a>
+            <div class="navbar-brand">
+                UKS-Tim1
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Page 1</a></li>
-                <li {% block active %} {% endblock active %} class="dropdown">
+              <li><a href="{% url 'project' %}">Projects</a></li>
+              <li><a href="{% url 'roleOnProject' %}">User on project</a></li>
+              <li {% block active %} {% endblock active %} class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Issues <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'issues' %}">All issues</a></li>
                         <li><a href="{% url 'issue-add' %}">Add issue</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Page 3</a></li>
+              <li><a href="#">Page 3</a></li>
             </ul>
               <ul class="nav navbar-right top-nav">
                 <li class="dropdown">
@@ -30,15 +30,9 @@
                         <li>
                             <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
                         </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Logout</a>
                         </li>
                     </ul>
                 </li>

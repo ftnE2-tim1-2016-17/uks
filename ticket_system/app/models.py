@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
-# Create your models here.
+from django.template.defaultfilters import default
 
 
 SILVER = "default"
@@ -41,6 +40,9 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('project')
 
 
 class Status(models.Model):
@@ -75,14 +77,14 @@ class Issue(models.Model):
     spentTime = models.TimeField()
     donePercentage = models.PositiveIntegerField()
 
-    '''def get_absolute_url(self):
-        return reverse('detail', kwargs={'pk': self.pk})'''
-
 
 class RoleOnProject(models.Model):
     role = models.CharField(max_length=20, choices=ROLE)
     user = models.ForeignKey(to=User, null=False, related_name="roleOnProject")
     project = models.ForeignKey(to=Project, null=False, related_name="roles")
+
+    def get_absolute_url(self):
+        return reverse('roleOnProject')
 
 
 class HistoryItem(models.Model):
