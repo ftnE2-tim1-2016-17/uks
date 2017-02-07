@@ -1,7 +1,6 @@
 import datetime
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.core.urlresolvers import reverse_lazy
 from .models import Issue, Comment, Project, RoleOnProject
 from .forms import IssueForm
 from django.http import HttpResponseRedirect
@@ -81,20 +80,21 @@ class ProjectForm(ModelForm):
             'endDate' : DateInput()
         }
 
+@login_required
 def project_list(request):
     project = Project.objects.all()
     data = {'project_list': project}
     template_name = 'app/project.html'
     return render(request, template_name, data)
 
-
+@login_required
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
     template_name = 'app/projectDetails.html'
     data = {"project": project}
     return render(request, template_name, data)
 
-
+@login_required
 def project_create(request):
     template_name = 'app/project_form.html'
     form = ProjectForm(request.POST or None)
@@ -106,6 +106,7 @@ def project_create(request):
     return render(request, template_name, {'form': form})
 
 
+@login_required
 def project_update(request, pk):
     template_name = 'app/project_update_form.html'
     project = get_object_or_404(Project, pk=pk)
@@ -116,6 +117,7 @@ def project_update(request, pk):
     return render(request, template_name, {'form': form})
 
 
+@login_required
 def project_delete(request, pk):
     template_name = 'app/project_confirm_delete.html'
     project = get_object_or_404(Project, pk=pk)
@@ -131,6 +133,7 @@ class RoleOnProjectForm(ModelForm):
         fields = ['id', 'role', 'user', 'project']
 
 
+@login_required
 def role_on_project_list(request):
     role_of_project = RoleOnProject.objects.all()
     data = {'roleOnProject_list': role_of_project}
@@ -138,6 +141,7 @@ def role_on_project_list(request):
     return render(request, template_name, data)
 
 
+@login_required
 def role_on_project_create(request):
     template_name = 'app/roleOnProject_form.html'
     form = RoleOnProjectForm(request.POST or None)
@@ -149,6 +153,7 @@ def role_on_project_create(request):
     return render(request, template_name, {'form': form})
 
 
+@login_required
 def role_on_project_update(request, pk):
     template_name = 'app/roleOnProject_update_form.html'
     role_on_project = get_object_or_404(RoleOnProject, pk=pk)
@@ -159,6 +164,7 @@ def role_on_project_update(request, pk):
     return render(request, template_name, {'form': form})
 
 
+@login_required
 def role_on_project_delete(request, pk):
     template_name = 'app/roleOnProject_confirm_delete.html'
     role_on_project = get_object_or_404(RoleOnProject, pk=pk)
@@ -168,6 +174,7 @@ def role_on_project_delete(request, pk):
     return render(request, template_name, {'roleonproject': role_on_project})
 
 
+@login_required
 def role_on_project(request, pk):
     project = get_object_or_404(Project, pk=pk)
     if request.method == "POST":
