@@ -1,12 +1,17 @@
 Run postgre container:
 docker run --name uksDBhost -e POSTGRES_PASSWORD=mysecretpassword -d postgres:9.6.1
 
-Run PSQL u postgre container-u:
+Run PSQL in postgre container:
 docker run -it --rm --link uksDBhost:postgres postgres:9.6.1 psql -h postgres -U postgres
 
-Run web app and link to postgre container + dettach:
+Run web app and link to postgre container + detach:
 docker run --name uksweb --link uksDBhost:postgres -d uksftntim1/2016-ftn-uks-tim1:develop
 
 Run web app and link to postgre container + attach:
 docker run --name uksweb --link uksDBhost:postgres uksftntim1/2016-ftn-uks-tim1:develop
 
+create db in postgre container:
+CREATE USER uks
+CREATE DATABASE uksdb
+GRANT ALL PRIVILEGES ON DATABASE uksdb TO uks
+ALTER USER "uks" WITH PASSWORD 'tim1uks'
