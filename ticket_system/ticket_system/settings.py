@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'uksDB',
         'USER': 'uks',                      # Not used with sqlite3.
         'PASSWORD': 'tim1uks',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'uksDBhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '5432',
     }
 }
