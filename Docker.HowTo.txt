@@ -1,0 +1,12 @@
+Run postgre container:
+docker run --name uksDBhost -e POSTGRES_PASSWORD=mysecretpassword -d postgres:9.6.1
+
+Run PSQL u postgre container-u:
+docker run -it --rm --link uksDBhost:postgres postgres:9.6.1 psql -h postgres -U postgres
+
+Run web app and link to postgre container + dettach:
+docker run --name uksweb --link uksDBhost:postgres -d uksftntim1/2016-ftn-uks-tim1:develop
+
+Run web app and link to postgre container + attach:
+docker run --name uksweb --link uksDBhost:postgres uksftntim1/2016-ftn-uks-tim1:develop
+

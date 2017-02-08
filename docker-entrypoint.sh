@@ -1,6 +1,8 @@
 #!/bin/bash
+echo Prepare database migrations           # Create database migrations
+python3 manage.py makemigrations app
 echo Apply database migrations
-python3 manage.py migrate                  # Apply database migrations
+python3 manage.py migrate app              # Apply database migrations
 
 echo Collect static files
 python3 manage.py collectstatic --noinput  # Collect static files
