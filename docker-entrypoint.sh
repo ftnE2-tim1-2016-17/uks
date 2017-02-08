@@ -18,10 +18,10 @@ python3 manage.py migrate app              # Apply database migrations
 
 # Start Gunicorn processes
 echo Starting Gunicorn.
-exec gunicorn apps.wsgi:application \
+exec gunicorn wsgi:application \
     --name uks-project \
     --bind 0.0.0.0:8000 \
-    --workers 3 \
+    --workers 1 \
     "$@"
 #    --log-level=info \
 #    --log-file=/srv/logs/gunicorn.log \
