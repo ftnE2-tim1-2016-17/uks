@@ -1,15 +1,25 @@
 from django.conf.urls import url
 from app import views
 
-#app_name = 'app'
-
 urlpatterns = [
-    url(r'^test/$', views.test, name='test'),
     url(r'^issue/$', views.IssueIndexView.as_view(), name='issues'),
-    url(r'^issue/(?P<pk>[0-9]+)/$', views.IssueDetailView.as_view(), name='issue-detail'),
+    url(r'^issue/(?P<pk>\d+)$', views.issue_detail, name='issue-detail'),
     url(r'^issue/add/$', views.IssueCreate.as_view(), name='issue-add'),
     url(r'^issue/update/(?P<pk>[0-9]+)/$', views.IssueUpdate.as_view(), name='issue-update'),
     url(r'^issue/(?P<pk>[0-9]+)/delete/$', views.IssueDelete.as_view(), name='issue-delete'),
-]
 
+    url(r'^comment/$', views.comment_create, name='comment-create'),
+    
+    url(r'^project/(?P<pk>\d+)$', views.project_detail, name='project_detail'),
+    url(r'^projects/list$', views.project_list, name='project'),
+    url(r'^project/add$', views.project_create, name='project_form'),
+    url(r'^project/update/(?P<pk>\d+)$', views.project_update, name='project_update_form'),
+    url(r'^project/delete/(?P<pk>\d+)$', views.project_delete, name='project_confirm_delete'),
+    url(r'^role/list$', views.role_on_project_list, name='roleOnProject'),
+    url(r'^role/add$', views.role_on_project_create, name='roleOnProject_form'),
+    url(r'^project/role/add/(?P<pk>\d+)$', views.role_on_project, name='roleOnProjectFromProject_form'),
+    url(r'^role/update/(?P<pk>\d+)$', views.role_on_project_update, name='roleOnProject_update_form'),
+    url(r'^role/delete/(?P<pk>\d+)$', views.role_on_project_delete, name='roleOnProject_confirm_delete'),
+
+]
 

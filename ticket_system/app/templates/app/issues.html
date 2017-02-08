@@ -8,6 +8,15 @@
 
 {% block content %}
 
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Issues <small>list</small>
+            </h1>
+        </div>
+    </div>
+
     <table class="table table-condensed">
         <thead>
         <tr>
@@ -31,21 +40,23 @@
                 <td>{{ issue.assignedTo }}</td>
                 <td>{{ issue.donePercentage }} %</td>
                 <td>
-                    <div align="left">
+                    <div style="float: left">
                         <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
                             {% csrf_token %}
                             <input type="hidden" name="issue_id" value="{{ issue.id }}" />
                             {% buttons %}
                                 <button type="submit" class="btn btn-primary" >
-                                    {% bootstrap_icon "edit" %} Edit</button>
+                                    {% bootstrap_icon "edit" %}</button>
                             {% endbuttons %}
                         </form>
+                    </div>
+                    <div style="float: left; padding-left: 5px">
                         <form action="{% url 'issue-delete' issue.id %}" method="post" style="display: inline">
                             {% csrf_token %}
                             <input type="hidden" name="issue_id" value="{{ issue.id }}" />
                             {% buttons %}
                                 <button type="submit" class="btn btn-primary" >
-                                    {% bootstrap_icon "trash" %} Delete</button>
+                                    {% bootstrap_icon "trash" %}</button>
                             {% endbuttons %}
                         </form>
                     </div>
@@ -55,12 +66,12 @@
         </tbody>
     </table>
     <br>
-    <div align="right">
+    <div align="center">
     <form action="{% url 'issue-add' %}" method="" style="display: inline">
         {% csrf_token %}
         {% buttons %}
             <button type="submit" class="btn btn-primary" >
-                {% bootstrap_icon "trash" %} Add issue</button>
+                {% bootstrap_icon "plus" %} New issue</button>
         {% endbuttons %}
     </form>
     </div>

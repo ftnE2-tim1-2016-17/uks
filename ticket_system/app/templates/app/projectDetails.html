@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+
+        <h1>{{ project.name }}</h1>
+            <p><b>Key:</b> {{ project.key }}</p>
+            <p><b>Project owner:</b> {{ project.project_owner }}</p>
+            <p><b>Description:</b> {{ project.description }}</p>
+            <p><b>Start date:</b> {{ project.startDate }}</p>
+            <p><b>End date:</b> {{ project.endDate }}</p>
+
+    <form action="{% url 'roleOnProjectFromProject_form' project.id %}" method="get" class="form">
+        {% buttons %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "user" %} Add user on project</button>
+        {% endbuttons %}
+    </form>
+
+{% endblock %}
