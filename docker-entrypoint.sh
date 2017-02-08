@@ -4,8 +4,8 @@ python3 manage.py makemigrations app
 echo Apply database migrations
 python3 manage.py migrate app              # Apply database migrations
 
-echo Collect static files
-python3 manage.py collectstatic --noinput  # Collect static files
+#echo Collect static files
+#python3 manage.py collectstatic --noinput  # Collect static files
 
 # Prepare log files and start outputting logs to stdout
 touch /srv/logs/gunicorn.log
