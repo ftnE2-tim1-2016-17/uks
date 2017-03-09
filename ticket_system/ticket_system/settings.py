@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'ticket_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': 'db',                      # Set to empty string for localhost or to 'uksDBhost' for docker. Not used with sqlite3.
+        'NAME': 'uksDB',
+        'USER': 'uks',                      # Not used with sqlite3.
+        'PASSWORD': 'tim1uks',                  # Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost or to 'uksDBhost' for docker. Not used with sqlite3.
         'PORT': '5432',
     }
 }
