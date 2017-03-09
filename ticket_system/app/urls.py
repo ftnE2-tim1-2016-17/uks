@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app import views
+from . import views
 
 urlpatterns = [
     url(r'^Project/(?P<pk>\d+)$', views.project_detail, name='project_detail'),
