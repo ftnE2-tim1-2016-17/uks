@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app import views
+from . import views
 
 urlpatterns = [
     url(r'^issue/$', views.IssueIndexView.as_view(), name='issues'),
