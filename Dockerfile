@@ -21,10 +21,10 @@ COPY $DOCKYARD_SRC $DOCKYARD_SRVPROJ
 # Install Python dependencies
 RUN pip3 install -r $DOCKYARD_SRVPROJ/requirements.txt
 
-EXPOSE 8000
+EXPOSE 8080
 
 # Copy entrypoint script into the image
 WORKDIR $DOCKYARD_SRVPROJ
-#COPY ./docker-entrypoint.sh /
-#RUN chmod +x /docker-entrypoint.sh 
-#ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh 
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
