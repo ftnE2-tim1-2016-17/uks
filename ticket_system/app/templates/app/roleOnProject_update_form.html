@@ -19,6 +19,13 @@
             </ol>
         </div>
     </div>
+    <p style="color:red; font-size:24px">
+        {% if messages %}
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        {% endif %}
+    </p>
         <div style="width: 30%;  padding: 20px" class="row" align="left">
             <form action="" method="post" class="form">
                 {% csrf_token %}

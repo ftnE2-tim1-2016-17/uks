@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.forms import ModelForm, DateInput
+from django.contrib import messages
 
 
 class DateInput(DateInput):
@@ -74,10 +75,10 @@ def comment_create(request):
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate', 'project_owner']
+        fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate']
         widgets = {
-            'startDate' : DateInput(),
-            'endDate' : DateInput()
+            'startDate': DateInput(),
+            'endDate': DateInput()
         }
 
 @login_required
@@ -100,6 +101,7 @@ def project_create(request):
     form = ProjectForm(request.POST or None)
     if form.is_valid():
         project = form.save(commit=False)
+        project.project_owner = request.user
         project.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': project.id}))
@@ -143,9 +145,14 @@ def role_on_project_list(request):
 
 @login_required
 def role_on_project_create(request):
+    role_of_projects = RoleOnProject.objects.all()
     template_name = 'app/roleOnProject_form.html'
     form = RoleOnProjectForm(request.POST or None)
     if form.is_valid():
+        for i, c in enumerate(role_of_projects):
+            if (form.cleaned_data['user'] == c.user) and (form.cleaned_data['project'] == c.project):
+                messages.error(request, "User: " + str(c.user) + " are already on project: " + str(c.project) + "!")
+                return render(request, template_name, {'form': form})
         role_on_project = form.save(commit=False)
         role_on_project.save()
         form.save_m2m()
@@ -155,10 +162,15 @@ def role_on_project_create(request):
 
 @login_required
 def role_on_project_update(request, pk):
+    role_of_projects = RoleOnProject.objects.all()
     template_name = 'app/roleOnProject_update_form.html'
     role_on_project = get_object_or_404(RoleOnProject, pk=pk)
     form = RoleOnProjectForm(request.POST or None, instance=role_on_project)
     if form.is_valid():
+        for i, c in enumerate(role_of_projects):
+            if (form.cleaned_data['user'] == c.user) and (form.cleaned_data['project'] == c.project):
+                messages.error(request, "User: " + str(c.user) + " are already on project: " + str(c.project) + "!")
+                return render(request, template_name, {'form': form})
         form.save()
         return redirect('roleOnProject')
     return render(request, template_name, {'form': form})
