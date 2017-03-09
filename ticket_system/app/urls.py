@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from app import views
+from . import views
 
 urlpatterns = [
     url(r'^issue/$', views.IssueIndexView.as_view(), name='issues'),
@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^issue/update/(?P<pk>[0-9]+)/$', views.IssueUpdate.as_view(), name='issue-update'),
     url(r'^issue/(?P<pk>[0-9]+)/delete/$', views.IssueDelete.as_view(), name='issue-delete'),
 
-    url(r'^comment/$', views.comment_create, name='comment-create')
+    url(r'^comment/$', views.comment_create, name='comment-create'),
     
     url(r'^project/(?P<pk>\d+)$', views.project_detail, name='project_detail'),
     url(r'^projects/list$', views.project_list, name='project'),
