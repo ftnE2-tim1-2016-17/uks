@@ -8,5 +8,5 @@ python3 ticket_system/manage.py migrate                # apply database migratio
 echo **************************************************************************
 echo
 echo ******************RUN LOCAL SERVER****************************************
-python ticket_system/manage.py runserver 0.0.0.0:8080 # run local server 
+python ticket_system/manage.py runserver 0.0.0.0:8000 --settings=ticket_system.settings_docker # run local server 
 echo **************************************************************************

@@ -21,7 +21,7 @@ COPY $DOCKYARD_SRC $DOCKYARD_SRVPROJ
 # Install Python dependencies
 RUN pip3 install -r $DOCKYARD_SRVPROJ/requirements.txt
 
-EXPOSE 8080
+EXPOSE 8000
 
 # Copy entrypoint script into the image
 WORKDIR $DOCKYARD_SRVPROJ
