@@ -1,10 +1,10 @@
 #!/bin/bash
 echo ******************Prepare database migrations*****************************
-python3 ticket_system/manage.py makemigrations #create database migrations
+python3 ticket_system/manage.py makemigrations --settings=ticket_system.settings_docker        #create database migrations
 echo **************************************************************************
 echo
 echo ******************Apply database migrations*******************************
-python3 ticket_system/manage.py migrate                # apply database migrations
+python3 ticket_system/manage.py migrate --settings=ticket_system.settings_docker               # apply database migrations
 echo **************************************************************************
 echo
 echo ******************RUN LOCAL SERVER****************************************
