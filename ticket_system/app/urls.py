@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     url(r'^issue/(?P<pk>\d+)$', views.issue_detail, name='issue-detail'),
-    url(r'^issue/add/$', views.issue_create, name='issue-add'),
+    url(r'^issue/add/(?P<pk>\d+)$', views.issue_create, name='issue-add'),
     url(r'^issue/update/(?P<pk>\d+)/$', views.issue_update, name='issue-update'),
     url(r'^issue/delete/(?P<pk>\d+)$', views.issue_delete, name='issue-delete'),
 

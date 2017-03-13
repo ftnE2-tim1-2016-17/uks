@@ -13,6 +13,10 @@ class DateInput(DateInput):
 
 
 class IssueFormUpdate(ModelForm):
+    def __init__(self, project_users_ids, *args, **kwargs):
+        super(ModelForm, self).__init__(*args, **kwargs)
+        self.fields['assignedTo'].queryset = self.fields['assignedTo'].queryset.filter(id__in=project_users_ids)
+
     class Meta:
         model = Issue
         fields = ['title', 'endDate', 'assignedTo', 'description', 'timeSpent', 'donePercentage']
@@ -24,7 +28,7 @@ class IssueFormUpdate(ModelForm):
 
 class IssueFormCreate(IssueFormUpdate):
     class Meta(IssueFormUpdate.Meta):
-        fields = ['title', 'endDate', 'assignedTo', 'project', 'description']
+        fields = ['title', 'endDate', 'assignedTo', 'description']
         '''  -- 'status', 'priority', --  '''
 
 
@@ -39,15 +43,24 @@ def issue_detail(request, pk):
 
 
 @login_required
-def issue_create(request):
+def issue_create(request, pk):
     template_name = 'app/issue_form.html'
-    form = IssueFormCreate(request.POST or None)
+    project = get_object_or_404(Project, pk=pk)
+    project_users_ids=[project.project_owner.id]
+
+    roles_on_projects = RoleOnProject.objects.filter(project=project)
+    for i, c in enumerate(roles_on_projects):
+        if c.user.id not in project_users_ids:
+            project_users_ids.append(c.user.id)
+
+    form = IssueFormCreate(project_users_ids, request.POST or None)
     if form.is_valid():
         issue = form.save(commit=False)
         issue.createdBy = request.user
         issue.startDate = datetime.datetime.now()
         issue.donePercentage = 0
         issue.spentTime = 0
+        issue.project = project
         issue.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
@@ -60,7 +73,15 @@ def issue_update(request, pk):
     issue = get_object_or_404(Issue, pk=pk)
     time_spent = issue.timeSpent
     issue.timeSpent = 0
-    form = IssueFormUpdate(request.POST or None, instance=issue)
+    project = issue.project
+    project_users_ids = [project.project_owner.id]
+
+    roles_on_projects = RoleOnProject.objects.filter(project=project)
+    for i, c in enumerate(roles_on_projects):
+        if c.user.id not in project_users_ids:
+            project_users_ids.append(c.user.id)
+
+    form = IssueFormUpdate(project_users_ids, request.POST or None, instance=issue)
     if form.is_valid():
         issue = form.save(commit=False)
         issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
@@ -113,7 +134,6 @@ def project_list(request):
     for i, c in enumerate(roles_on_projects):
         if c.project not in projects:
             projects.append(c.project)
-    print(projects)
     data = {'project_list': projects}
     template_name = 'app/project.html'
     return render(request, template_name, data)

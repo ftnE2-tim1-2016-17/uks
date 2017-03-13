@@ -70,7 +70,7 @@
     </table>
     <br>
     <div align="center">
-    <form action="{% url 'issue-add' %}" method="" style="display: inline">
+    <form action="{% url 'issue-add' project.id %}" method="" style="display: inline">
         {% csrf_token %}
         {% buttons %}
             <button type="submit" class="btn btn-primary" >
