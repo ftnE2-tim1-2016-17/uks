@@ -104,8 +104,17 @@ class ProjectForm(ModelForm):
 
 @login_required
 def project_list(request):
-    project = Project.objects.all()
-    data = {'project_list': project}
+    projects = []
+    roles_on_projects = RoleOnProject.objects.filter(user=request.user)
+    owned_projects = Project.objects.filter(project_owner=request.user)
+    for i, c in enumerate(owned_projects):
+        projects.append(c)
+
+    for i, c in enumerate(roles_on_projects):
+        if c.project not in projects:
+            projects.append(c.project)
+    print(projects)
+    data = {'project_list': projects}
     template_name = 'app/project.html'
     return render(request, template_name, data)
 
