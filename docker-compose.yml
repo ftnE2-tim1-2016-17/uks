@@ -1,10 +1,9 @@
-version: '2'
+version: '3'
 services:
    db:
-     image: postgres
+     image: postgres:9.6.1
    web:
      build: .
-     command: python ticket_system/manage.py runserver 0.0.0.0:8000
      volumes:
        - .:/srv/ticket_system
      ports:
