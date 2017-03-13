@@ -1,5 +1,5 @@
 import datetime
-from .models import Issue, Comment, Project, RoleOnProject, Status, Priority
+from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -8,7 +8,6 @@ from django.forms import ModelForm, DateInput
 from django.contrib import messages
 
 
-#
 class DateInput(DateInput):
     input_type = 'date'
 
@@ -16,19 +15,17 @@ class DateInput(DateInput):
 class IssueFormUpdate(ModelForm):
     class Meta:
         model = Issue
-        fields = ['title', 'endDate', 'assignedTo', 'project', 'description', 'timeSpent',
-                  'donePercentage']
+        fields = ['title', 'endDate', 'assignedTo', 'description', 'timeSpent', 'donePercentage']
         '''  -- 'status', 'priority', --  '''
         widgets = {
-            'startDate': DateInput(),
             'endDate': DateInput(),
         }
 
 
 class IssueFormCreate(IssueFormUpdate):
     class Meta(IssueFormUpdate.Meta):
-        exclude = ('donePercentage', 'timeSpent', )
-
+        fields = ['title', 'endDate', 'assignedTo', 'project', 'description']
+        '''  -- 'status', 'priority', --  '''
 
 
 @login_required
@@ -61,8 +58,17 @@ def issue_create(request):
 def issue_update(request, pk):
     template_name = 'app/issue_update_form.html'
     issue = get_object_or_404(Issue, pk=pk)
+    list_of_user_on_project = []
+    role_on_projects = RoleOnProject.objects.all()
+    users = User.objects.all()
+    for role_on_project in role_on_projects:
+        if (RoleOnProject(role_on_project)).project == issue.project:
+            for user in users:
+                if (RoleOnProject(role_on_project)).user == user:
+                    list_of_user_on_project.append(user)
     time_spent = issue.timeSpent
     issue.timeSpent = 0
+    issue.assignedTo = list_of_user_on_project
     form = IssueFormUpdate(request.POST or None, instance=issue)
     if form.is_valid():
         issue = form.save(commit=False)
