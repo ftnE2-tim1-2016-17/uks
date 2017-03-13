@@ -11,7 +11,6 @@
         <h1>Issue: {{ issue.title }}</h1>
         <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
             {% csrf_token %}
-            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
             {% buttons %}
                 <button type="submit" class="btn btn-primary" >
                     {% bootstrap_icon "edit" %} Edit</button>
@@ -55,7 +54,7 @@
         {% for comment in comment_list %}
             <blockquote>
                 <p>{{ comment }}</p>
-                <footer>{{ user }}</footer>
+                <footer>{{ comment.author }} {{ comment.datetime }}</footer>
             </blockquote>
         {% endfor %}
 

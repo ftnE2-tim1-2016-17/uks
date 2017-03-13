@@ -8,14 +8,3 @@ class DateInput(forms.DateInput):
 
 class TimeInput(forms.TimeInput):
     input_type = 'time'
-
-class IssueForm(ModelForm):
-
-    class Meta:
-        model = Issue
-        fields = ['title', 'endDate', 'createdBy', 'assignedTo', 'project', 'status', 'priority', 'description', 'spentTime', 'donePercentage']
-        widgets = {
-            'startDate' : DateInput(),
-            'endDate' : DateInput(),
-            'spentTime' : TimeInput(),
-        }

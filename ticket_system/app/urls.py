@@ -2,11 +2,10 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^issue/$', views.IssueIndexView.as_view(), name='issues'),
     url(r'^issue/(?P<pk>\d+)$', views.issue_detail, name='issue-detail'),
-    url(r'^issue/add/$', views.IssueCreate.as_view(), name='issue-add'),
-    url(r'^issue/update/(?P<pk>[0-9]+)/$', views.IssueUpdate.as_view(), name='issue-update'),
-    url(r'^issue/(?P<pk>[0-9]+)/delete/$', views.IssueDelete.as_view(), name='issue-delete'),
+    url(r'^issue/add/$', views.issue_create, name='issue-add'),
+    url(r'^issue/update/(?P<pk>\d+)/$', views.issue_update, name='issue-update'),
+    url(r'^issue/delete/(?P<pk>\d+)$', views.issue_delete, name='issue-delete'),
 
     url(r'^comment/$', views.comment_create, name='comment-create'),
     
