@@ -8,7 +8,7 @@
 
 {% block content %}
     <div align="left">
-        <h1>Issue: {{ issue.title }}</h1>
+        <h1>Issue [{{ issue.id }}]: {{ issue.title }}</h1>
         <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
             {% csrf_token %}
             {% buttons %}

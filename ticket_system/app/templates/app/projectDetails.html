@@ -21,8 +21,9 @@
         <table class="table table-condensed">
         <thead>
         <tr>
+            <th>Id</th>
             <th>Title</th>
-            <th>Key</th>
+            <th>Type</th>
             <th>Status</th>
             <th>Priority</th>
             <th>Assigned To</th>
@@ -36,8 +37,9 @@
         <h2>List of issues on {{ project.name }}</h2>
         {% for issue in issue_list %}
             <tr>
+                <td>{{ issue.id }}</td>
                 <td><a href="{% url 'issue-detail' issue.id%}">{{ issue.title }}</a></td>
-                <td>{{ issue.key }}</td>
+                <td>{{ issue.type }}</td>
                 <td>{{ issue.status }}</td>
                 <td>{{ issue.priority }}</td>
                 <td>{{ issue.assignedTo }}</td>

@@ -8,3 +8,4 @@ django-bootstrap3
 django-finalware
 Pillow
 selenium
+PyYAML==3.12

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404, redirect
+from django import forms
 from django.forms import ModelForm, DateInput
 from django.contrib import messages
 
@@ -17,10 +18,13 @@ class IssueFormUpdate(ModelForm):
         super(ModelForm, self).__init__(*args, **kwargs)
         self.fields['assignedTo'].queryset = self.fields['assignedTo'].queryset.filter(id__in=project_users_ids)
 
+    type = forms.CharField(required=False)
+
     class Meta:
         model = Issue
-        fields = ['title', 'endDate', 'assignedTo', 'description', 'timeSpent', 'donePercentage']
-        '''  -- 'status', 'priority', --  '''
+        fields = ['title', 'status', 'priority', 'type', 'endDate', 'assignedTo', 'description', 'timeSpent',
+                  'donePercentage']
+
         widgets = {
             'endDate': DateInput(),
         }
@@ -28,8 +32,7 @@ class IssueFormUpdate(ModelForm):
 
 class IssueFormCreate(IssueFormUpdate):
     class Meta(IssueFormUpdate.Meta):
-        fields = ['title', 'endDate', 'assignedTo', 'description']
-        '''  -- 'status', 'priority', --  '''
+        fields = ['title', 'status', 'priority', 'type', 'endDate', 'assignedTo', 'description']
 
 
 @login_required
