@@ -9,3 +9,4 @@ django-finalware
 Pillow
 selenium
 PyYAML==3.12
+django_chartit

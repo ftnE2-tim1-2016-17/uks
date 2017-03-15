@@ -1,7 +1,6 @@
 import datetime
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .forms import IssueForm
 from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, MonthlyWeatherByCity
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
