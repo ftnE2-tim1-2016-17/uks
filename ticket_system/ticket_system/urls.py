@@ -19,7 +19,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView
 
 urlpatterns = [
-    url(r'^$', include('app.urls')),
+    url(r'^', include('app.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^app/', include('app.urls')),
 
