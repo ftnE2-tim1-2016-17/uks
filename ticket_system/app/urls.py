@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^issue/update/(?P<pk>[0-9]+)/$', views.IssueUpdate.as_view(), name='issue-update'),
     url(r'^issue/(?P<pk>[0-9]+)/delete/$', views.IssueDelete.as_view(), name='issue-delete'),
 
+    #url(r'^bla/$', views.nesto, name='nesto'),
+
     url(r'^comment/$', views.comment_create, name='comment-create'),
     
     url(r'^project/(?P<pk>\d+)$', views.project_detail, name='project_detail'),
@@ -20,6 +22,8 @@ urlpatterns = [
     url(r'^project/role/add/(?P<pk>\d+)$', views.role_on_project, name='roleOnProjectFromProject_form'),
     url(r'^role/update/(?P<pk>\d+)$', views.role_on_project_update, name='roleOnProject_update_form'),
     url(r'^role/delete/(?P<pk>\d+)$', views.role_on_project_delete, name='roleOnProject_confirm_delete'),
+
+    url(r'^charts/$', views.weatherchart, name='chartView'),
 
 ]
 

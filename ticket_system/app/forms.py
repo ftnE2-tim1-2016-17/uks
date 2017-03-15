@@ -15,7 +15,7 @@ class IssueForm(ModelForm):
         model = Issue
         fields = ['title', 'endDate', 'createdBy', 'assignedTo', 'project', 'status', 'priority', 'description', 'spentTime', 'donePercentage']
         widgets = {
-            'startDate' : DateInput(),
-            'endDate' : DateInput(),
-            'spentTime' : TimeInput(),
+            'startDate': DateInput(),
+            'endDate': DateInput(),
+            'spentTime': TimeInput(),
         }

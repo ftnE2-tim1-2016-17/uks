@@ -1,7 +1,7 @@
 import datetime
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Issue, Comment, Project, RoleOnProject
+from .models import Issue, Comment, Project, RoleOnProject, MonthlyWeatherByCity
 from .forms import IssueForm
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,42 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.forms import ModelForm, DateInput
 from django.contrib import messages
+from django.shortcuts import render_to_response
+from chartit import DataPool, Chart
+
+
+def weatherchart(request):
+    weatherdata = \
+        DataPool(
+           series=
+            [{'options': {
+               'source': MonthlyWeatherByCity.objects.all()},
+              'terms': [
+                'month',
+                'houston_temp',
+                'boston_temp']}
+             ])
+
+    cht = Chart(
+            datasource=weatherdata,
+            series_options=
+              [{'options': {
+                  'type': 'line',
+                  'stacking': False},
+                'terms': {
+                  'month': [
+                    'boston_temp',
+                    'houston_temp']
+                  }}],
+            chart_options=
+              {'title': {
+                   'text': 'Weather Data of Boston and Houston'},
+               'xAxis': {
+                    'title': {
+                       'text': 'Month number'}}})
+
+    #Step 3: Send the chart object to the template.
+    return render_to_response('app/graphs.html', {'weatherchart': cht})
 
 
 class DateInput(DateInput):
@@ -60,6 +96,7 @@ class IssueDelete(DeleteView):
     model = Issue
     success_url = reverse_lazy('issues')
 
+
 @login_required
 def comment_create(request):
     comment = Comment()
@@ -81,6 +118,7 @@ class ProjectForm(ModelForm):
             'endDate': DateInput()
         }
 
+
 @login_required
 def project_list(request):
     project = Project.objects.all()
@@ -88,12 +126,14 @@ def project_list(request):
     template_name = 'app/project.html'
     return render(request, template_name, data)
 
+
 @login_required
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
     template_name = 'app/projectDetails.html'
     data = {"project": project}
     return render(request, template_name, data)
+
 
 @login_required
 def project_create(request):
