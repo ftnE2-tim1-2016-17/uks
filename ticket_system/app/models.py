@@ -70,7 +70,6 @@ class MonthlyWeatherByCity(models.Model):
     houston_temp = models.DecimalField(max_digits=5, decimal_places=1)
 
 
-
 class Issue(models.Model):
     type = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
