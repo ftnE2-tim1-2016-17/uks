@@ -5,6 +5,7 @@ from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, Us
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.core.validators import URLValidator
 from django.shortcuts import render, get_object_or_404, redirect
 from django import forms
 from django.forms import ModelForm, DateInput
@@ -156,9 +157,12 @@ def comment_create(request):
 
 
 class ProjectForm(ModelForm):
+    validator = URLValidator()
+    git = forms.CharField(required=False, validators=[validator])
+
     class Meta:
         model = Project
-        fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate']
+        fields = ['id', 'name', 'key', 'description', 'startDate', 'endDate', 'git']
         widgets = {
             'startDate': DateInput(),
             'endDate': DateInput()

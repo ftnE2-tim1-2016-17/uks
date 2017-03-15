@@ -38,6 +38,7 @@ class Project(models.Model):
     description = models.TextField()
     startDate = models.DateField()
     endDate = models.DateField()
+    git = models.URLField(max_length=1024, null=True)
 
     def __str__(self):
         return self.name

@@ -10,6 +10,7 @@
             <p><b>Description:</b> {{ project.description }}</p>
             <p><b>Start date:</b> {{ project.startDate }}</p>
             <p><b>End date:</b> {{ project.endDate }}</p>
+            <p><b>GIT:</b> {{ project.git }}</p>
 
     <form action="{% url 'roleOnProjectFromProject_form' project.id %}" method="get" class="form">
         {% buttons %}
