@@ -64,6 +64,13 @@ class Priority(models.Model):
         return self.name
 
 
+class MonthlyWeatherByCity(models.Model):
+    month = models.IntegerField()
+    boston_temp = models.DecimalField(max_digits=5, decimal_places=1)
+    houston_temp = models.DecimalField(max_digits=5, decimal_places=1)
+
+
+
 class Issue(models.Model):
     type = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
