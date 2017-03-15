@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -40,7 +41,7 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse('project')
 
@@ -78,11 +79,16 @@ class Issue(models.Model):
     createdBy = models.ForeignKey(to=User, null=False, related_name="createdIssues")
     assignedTo = models.ForeignKey(to=User, null=False, related_name="assignedIssues")
     project = models.ForeignKey(to=Project, null=False)
-    status = models.CharField(max_length=20, choices=MARKER_CHOICES, default=SILVER)
-    priority = models.CharField(max_length=20, choices=MARKER_CHOICES, default=SILVER)
     description = models.TextField()
-    spentTime = models.TimeField()
-    donePercentage = models.PositiveIntegerField()
+    status = models.ForeignKey(to=Status, null=True)
+    priority = models.ForeignKey(to=Priority, null=True)
+    timeSpent = models.PositiveIntegerField(default=0, validators=[
+        MinValueValidator(0)
+    ])
+    donePercentage = models.PositiveIntegerField(validators=[
+        MaxValueValidator(100),
+        MinValueValidator(0)
+    ])
 
 
 class RoleOnProject(models.Model):
@@ -109,6 +115,7 @@ class Comment(HistoryItem):
 
 class Commit(HistoryItem):
     link = models.URLField()
+
 
 class IssueChange(HistoryItem):
     propertyName = models.CharField(max_length=50)

@@ -1,11 +1,11 @@
 import datetime
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Issue, Comment, Project, RoleOnProject, MonthlyWeatherByCity
 from .forms import IssueForm
+from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, MonthlyWeatherByCity
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.forms import ModelForm, DateInput
 from django.contrib import messages
@@ -51,12 +51,24 @@ class DateInput(DateInput):
     input_type = 'date'
 
 
-class IssueIndexView(generic.ListView):
-    template_name = 'app/issues.html'
-    context_object_name = 'issue_list'
+class IssueFormUpdate(ModelForm):
+    def __init__(self, project_users_ids, *args, **kwargs):
+        super(ModelForm, self).__init__(*args, **kwargs)
+        self.fields['assignedTo'].queryset = self.fields['assignedTo'].queryset.filter(id__in=project_users_ids)
 
-    def get_queryset(self):
-        return Issue.objects.filter(assignedTo=self.request.user, createdBy=self.request.user)
+    class Meta:
+        model = Issue
+        fields = ['title', 'endDate', 'assignedTo', 'description', 'timeSpent', 'donePercentage']
+        '''  -- 'status', 'priority', --  '''
+        widgets = {
+            'endDate': DateInput(),
+        }
+
+
+class IssueFormCreate(IssueFormUpdate):
+    class Meta(IssueFormUpdate.Meta):
+        fields = ['title', 'endDate', 'assignedTo', 'description']
+        '''  -- 'status', 'priority', --  '''
 
 
 @login_required
@@ -69,32 +81,64 @@ def issue_detail(request, pk):
     return render(request, template_name, data)
 
 
-class IssueCreate(CreateView):
-    model = Issue
-    form_class = IssueForm
+@login_required
+def issue_create(request, pk):
+    template_name = 'app/issue_form.html'
+    project = get_object_or_404(Project, pk=pk)
+    project_users_ids=[project.project_owner.id]
 
-    def form_valid(self, form):
-        type = 'bla bla'
-        form.instance.type = type
-        startDate = datetime.datetime.now()
-        form.instance.startDate = startDate
-        return super(IssueCreate, self).form_valid(form)
-    success_url = reverse_lazy('issues')
+    roles_on_projects = RoleOnProject.objects.filter(project=project)
+    for i, c in enumerate(roles_on_projects):
+        if c.user.id not in project_users_ids:
+            project_users_ids.append(c.user.id)
+
+    form = IssueFormCreate(project_users_ids, request.POST or None)
+    if form.is_valid():
+        issue = form.save(commit=False)
+        issue.createdBy = request.user
+        issue.startDate = datetime.datetime.now()
+        issue.donePercentage = 0
+        issue.spentTime = 0
+        issue.project = project
+        issue.save()
+        form.save_m2m()
+        return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
+    return render(request, template_name, {'form': form})
 
 
-# IssueUpdateView ?
-class IssueUpdate(UpdateView):
-    model = Issue
-    #fields = ['title', 'startDate', 'endDate', 'createdBy', 'assignedTo', 'project', 'status', 'priority', 'description', 'spentTime', 'donePercentage']
-    form_class = IssueForm
-    template_name_suffix = '_update_form'
-    success_url = reverse_lazy('issues')
-    # in html {% include 'app/form-template.html' %} OR {% bootstrap_form form %}
+@login_required
+def issue_update(request, pk):
+    template_name = 'app/issue_update_form.html'
+    issue = get_object_or_404(Issue, pk=pk)
+    time_spent = issue.timeSpent
+    issue.timeSpent = 0
+    project = issue.project
+    project_users_ids = [project.project_owner.id]
+
+    roles_on_projects = RoleOnProject.objects.filter(project=project)
+    for i, c in enumerate(roles_on_projects):
+        if c.user.id not in project_users_ids:
+            project_users_ids.append(c.user.id)
+
+    form = IssueFormUpdate(project_users_ids, request.POST or None, instance=issue)
+    if form.is_valid():
+        issue = form.save(commit=False)
+        issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
+        issue.save()
+        form.save_m2m()
+        return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
+    return render(request, template_name, {'form': form})
 
 
-class IssueDelete(DeleteView):
-    model = Issue
-    success_url = reverse_lazy('issues')
+@login_required
+def issue_delete(request, pk):
+    template_name = 'app/issue_confirm_delete.html'
+    issue = get_object_or_404(Issue, pk=pk)
+    if request.method == 'POST':
+        issue.delete()
+        return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
+    return render(request, template_name, {'issue': issue})
+
 
 
 @login_required
@@ -121,8 +165,16 @@ class ProjectForm(ModelForm):
 
 @login_required
 def project_list(request):
-    project = Project.objects.all()
-    data = {'project_list': project}
+    projects = []
+    roles_on_projects = RoleOnProject.objects.filter(user=request.user)
+    owned_projects = Project.objects.filter(project_owner=request.user)
+    for i, c in enumerate(owned_projects):
+        projects.append(c)
+
+    for i, c in enumerate(roles_on_projects):
+        if c.project not in projects:
+            projects.append(c.project)
+    data = {'project_list': projects}
     template_name = 'app/project.html'
     return render(request, template_name, data)
 
@@ -130,8 +182,9 @@ def project_list(request):
 @login_required
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
+    issue_list_for_project = Issue.objects.filter(project=project)
     template_name = 'app/projectDetails.html'
-    data = {"project": project}
+    data = {"project": project, "issue_list": issue_list_for_project}
     return render(request, template_name, data)
 
 
@@ -228,13 +281,21 @@ def role_on_project_delete(request, pk):
 
 @login_required
 def role_on_project(request, pk):
+    role_of_projects = RoleOnProject.objects.all()
+    template_name = 'app/roleOnProject_form.html'
     project = get_object_or_404(Project, pk=pk)
     if request.method == "POST":
         form = RoleOnProjectForm(request.POST)
         if form.is_valid():
-            # <process form cleaned data>
-            return HttpResponseRedirect('/success/')
+            for i, c in enumerate(role_of_projects):
+                if (form.cleaned_data['user'] == c.user) and (form.cleaned_data['project'] == c.project):
+                    messages.error(request, "User: " + str(c.user) + " are already on project: " + str(c.project) + "!")
+                    return render(request, template_name, {'form': form})
+            role_on_project = form.save(commit=False)
+            role_on_project.save()
+            form.save_m2m()
+            return redirect('roleOnProject')
     else:
         form = RoleOnProjectForm(initial={'project': project.id})
 
-    return render(request, 'app/roleOnProject_form.html', {'form': form})
+    return render(request, template_name, {'form': form})

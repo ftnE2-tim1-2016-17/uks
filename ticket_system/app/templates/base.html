@@ -17,13 +17,6 @@
             <ul class="nav navbar-nav">
               <li><a href="{% url 'project' %}">Projects</a></li>
               <li><a href="{% url 'roleOnProject' %}">User on project</a></li>
-              <li {% block active %} {% endblock active %} class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Issues <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url 'issues' %}">All issues</a></li>
-                        <li><a href="{% url 'issue-add' %}">Add issue</a></li>
-                    </ul>
-                </li>
               <li><a href="{% url 'chartView' %}">Graphs</a></li>
             </ul>
               <ul class="nav navbar-right top-nav">
