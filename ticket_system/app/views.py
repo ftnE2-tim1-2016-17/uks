@@ -1,5 +1,5 @@
 import datetime
-from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, Issue_chart
+from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, Issue_chart, Closed_Issue_chart
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -14,9 +14,14 @@ from . import models
 
 
 def issueschart(request, pk):
+
+    charts = Issue_chart.objects.all()
+    for chart in charts:
+        chart.delete()
+
     project = get_object_or_404(Project, pk=pk)
-    status_open = Status.objects.filter(marker=models.SILVER)
-    status_closed = Status.objects.filter(marker=models.GREEN)
+    status_open = Status.objects.filter(name='New')
+    status_closed = Status.objects.filter(name='Closed')
     open_issues_for_project = Issue.objects.filter(project=project, status=status_open[0])
     closed_issues_for_project = Issue.objects.filter(project=project, status=status_closed[0])
     opened_model = Issue_chart(1, 1, len(open_issues_for_project))
@@ -54,6 +59,66 @@ def issueschart(request, pk):
             x_sortf_mapf_mts=(None, issue_status, False))
 
     #Step 3: Send the chart object to the template.
+    return render_to_response('app/graphs.html', {'issueschart': cht})
+
+
+def user_closed_issues_chart(request, pk):
+
+    charts = Closed_Issue_chart.objects.all()
+    for chart in charts:
+        chart.delete()
+
+    current_user = request.user
+    project = get_object_or_404(Project, pk=pk)
+    status_closed = Status.objects.filter(name='Closed')
+    issues = Issue.objects.filter(project=project, assignedTo=current_user, status=status_closed)
+    print('RA')
+    for issue in issues:
+        print('GRA')
+        print(issue.finishDate)
+        if Closed_Issue_chart.objects.filter(date=issue.finishDate):
+            closed_chart = Closed_Issue_chart.objects.filter(date=issue.finishDate)
+            closed_chart = closed_chart[0]
+            closed_chart.num += 1
+            closed_chart.save()
+        else:
+            closed_chart = Closed_Issue_chart()
+            closed_chart.date = issue.finishDate
+            closed_chart.num = 1
+            closed_chart.save()
+
+    chartBla = Closed_Issue_chart.objects.all()
+    print('MARS')
+    for bla in chartBla:
+        print('KURAC')
+        print(bla.date)
+
+    ds = DataPool(
+       series=
+        [{'options': {
+            'source': Closed_Issue_chart.objects.all()},
+          'terms': [
+            'date',
+            'num']}
+         ])
+
+    cht = Chart(
+        datasource = ds,
+        series_options =
+          [{'options':{
+              'type': 'line',
+              'stacking': False},
+            'terms':{
+              'date': [
+                'num']
+              }}],
+        chart_options =
+          {'title': {
+               'text': 'TEXT'},
+           'xAxis': {
+                'title': {
+                   'text': 'TEXT 1'}}})
+
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
@@ -136,6 +201,8 @@ def issue_update(request, pk):
     if form.is_valid():
         issue = form.save(commit=False)
         issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
+        if issue.status.name == 'Closed':
+            issue.finishDate = datetime.datetime.now()
         issue.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))

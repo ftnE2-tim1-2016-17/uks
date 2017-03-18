@@ -67,15 +67,23 @@ class Priority(models.Model):
     opened = models.IntegerField()
     closed = models.IntegerField()'''
 
+
 class Issue_chart(models.Model):
     num = models.IntegerField()
     quantity = models.IntegerField()
+
+
+class Closed_Issue_chart(models.Model):
+    date = models.DateField()
+    num = models.IntegerField()
+
 
 class Issue(models.Model):
     type = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)
     startDate = models.DateField()
     endDate = models.DateField()
+    finishDate = models.DateField(null=True)
     createdBy = models.ForeignKey(to=User, null=False, related_name="createdIssues")
     assignedTo = models.ForeignKey(to=User, null=False, related_name="assignedIssues")
     project = models.ForeignKey(to=Project, null=False)

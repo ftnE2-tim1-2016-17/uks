@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^role/delete/(?P<pk>\d+)$', views.role_on_project_delete, name='roleOnProject_confirm_delete'),
 
     url(r'^charts/(?P<pk>\d+)$', views.issueschart, name='chartView'),
+    url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2')
 
 ]
 
