@@ -2,8 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.template.defaultfilters import default
-
 
 SILVER = "default"
 BLUE = "primary"
@@ -65,11 +63,13 @@ class Priority(models.Model):
         return self.name
 
 
-class MonthlyWeatherByCity(models.Model):
-    month = models.IntegerField()
-    boston_temp = models.DecimalField(max_digits=5, decimal_places=1)
-    houston_temp = models.DecimalField(max_digits=5, decimal_places=1)
+'''class Issue_chart(models.Model):
+    opened = models.IntegerField()
+    closed = models.IntegerField()'''
 
+class Issue_chart(models.Model):
+    num = models.IntegerField()
+    quantity = models.IntegerField()
 
 class Issue(models.Model):
     type = models.CharField(max_length=50, null=True)

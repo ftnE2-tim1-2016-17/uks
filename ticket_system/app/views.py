@@ -1,7 +1,5 @@
 import datetime
-from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, MonthlyWeatherByCity
+from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, Issue_chart
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -12,40 +10,51 @@ from django.forms import ModelForm, DateInput
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
+from . import models
 
 
-def weatherchart(request):
-    weatherdata = \
+def issueschart(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    status_open = Status.objects.filter(marker=models.SILVER)
+    status_closed = Status.objects.filter(marker=models.GREEN)
+    open_issues_for_project = Issue.objects.filter(project=project, status=status_open[0])
+    closed_issues_for_project = Issue.objects.filter(project=project, status=status_closed[0])
+    opened_model = Issue_chart(1, 1, len(open_issues_for_project))
+    opened_model.save()
+    closed_model = Issue_chart(2, 2, len(closed_issues_for_project))
+    closed_model.save()
+
+    def issue_status(num):
+        status = {1: 'otvoren', 2: 'zatvoren'}
+        return status[num]
+
+    issuedata = \
         DataPool(
            series=
             [{'options': {
-               'source': MonthlyWeatherByCity.objects.all()},
+               'source': Issue_chart.objects.all()},
               'terms': [
-                'month',
-                'houston_temp',
-                'boston_temp']}
+                'num',
+                'quantity']}
              ])
 
     cht = Chart(
-            datasource=weatherdata,
+            datasource=issuedata,
             series_options=
               [{'options': {
-                  'type': 'line',
+                  'type': 'pie',
                   'stacking': False},
                 'terms': {
-                  'month': [
-                    'boston_temp',
-                    'houston_temp']
+                  'num': [
+                    'quantity']
                   }}],
             chart_options=
               {'title': {
-                   'text': 'Weather Data of Boston and Houston'},
-               'xAxis': {
-                    'title': {
-                       'text': 'Month number'}}})
+                   'text': 'Odnos otvorenih i zatvorenih issue-a za projekat'}},
+            x_sortf_mapf_mts=(None, issue_status, False))
 
     #Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'weatherchart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
 class DateInput(DateInput):

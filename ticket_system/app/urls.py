@@ -18,7 +18,8 @@ urlpatterns = [
     url(r'^project/role/add/(?P<pk>\d+)$', views.role_on_project, name='roleOnProjectFromProject_form'),
     url(r'^role/update/(?P<pk>\d+)$', views.role_on_project_update, name='roleOnProject_update_form'),
     url(r'^role/delete/(?P<pk>\d+)$', views.role_on_project_delete, name='roleOnProject_confirm_delete'),
-    url(r'^charts/$', views.weatherchart, name='chartView'),
+
+    url(r'^charts/(?P<pk>\d+)$', views.issueschart, name='chartView'),
 
 ]
 
