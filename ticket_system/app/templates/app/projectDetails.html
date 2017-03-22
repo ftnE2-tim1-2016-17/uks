@@ -34,7 +34,14 @@
         </thead>
         <tbody>
         <br>
-
+        Graphs:
+            <li>
+        <a href="{% url 'chartView' project.id %}">Opened/closed issues for project</a></li>
+        <li>
+        <a href="{% url 'chartView2' project.id %}">Number of closed issues for user on project</a>
+                </li>
+        </li>
+        <br>
         <h2>List of issues on {{ project.name }}</h2>
         {% for issue in issue_list %}
             <tr>
@@ -46,6 +53,7 @@
                 <td>{{ issue.assignedTo }}</td>
                 <td>{{ issue.timeSpent }}</td>
                 <td>{{ issue.donePercentage }} %</td>
+                <td><a href="{% url 'commits' pkProj=project.id pkIssue=issue.id%}">Commits</a></td>
                 <td>
                     <div style="float: left">
                         <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
@@ -80,6 +88,7 @@
                 {% bootstrap_icon "plus" %} New issue</button>
         {% endbuttons %}
     </form>
+
     </div>
 
 {% endblock %}

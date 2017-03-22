@@ -1,10 +1,8 @@
 {# Load the tag library #}
 {% load bootstrap3 %}
-
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-
 {% block html %}
 {% endblock html %}
 
@@ -17,7 +15,6 @@
             <ul class="nav navbar-nav">
               <li><a href="{% url 'project' %}">Projects</a></li>
               <li><a href="{% url 'roleOnProject' %}">User on project</a></li>
-              <li><a href="{% url 'chartView' %}">Graphs</a></li>
             </ul>
               <ul class="nav navbar-right top-nav">
                 <li class="dropdown">

@@ -1,7 +1,6 @@
 import datetime
-from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Issue, Comment, Project, RoleOnProject, IssueChange, MonthlyWeatherByCity
+import json
+from .models import Issue, Comment, Project, RoleOnProject, Status, IssueChange, Issue_chart, Closed_Issue_chart
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -12,40 +11,131 @@ from django.forms import ModelForm, DateInput
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
+from urllib.request import urlopen
 
 
-def weatherchart(request):
-    weatherdata = \
+def issueschart(request, pk):
+
+    charts = Issue_chart.objects.all()
+    for chart in charts:
+        chart.delete()
+
+    project = get_object_or_404(Project, pk=pk)
+    status_open = Status.objects.filter(name='New')
+    status_closed = Status.objects.filter(name='Closed')
+    open_issues_for_project = Issue.objects.filter(project=project, status=status_open[0])
+    closed_issues_for_project = Issue.objects.filter(project=project, status=status_closed[0])
+    opened_model = Issue_chart(1, 1, len(open_issues_for_project))
+    opened_model.save()
+    closed_model = Issue_chart(2, 2, len(closed_issues_for_project))
+    closed_model.save()
+
+    def issue_status(num):
+        status = {1: 'otvoren', 2: 'zatvoren'}
+        return status[num]
+
+    issuedata = \
         DataPool(
             series=
             [{'options': {
-                'source': MonthlyWeatherByCity.objects.all()},
+               'source': Issue_chart.objects.all()},
               'terms': [
-                  'month',
-                  'houston_temp',
-                  'boston_temp']}
+                'num',
+                'quantity']}
              ])
 
     cht = Chart(
-        datasource=weatherdata,
-        series_options=
-        [{'options': {
-            'type': 'line',
-            'stacking': False},
-          'terms': {
-              'month': [
-                  'boston_temp',
-                  'houston_temp']
-          }}],
-        chart_options=
-        {'title': {
-            'text': 'Weather Data of Boston and Houston'},
-         'xAxis': {
-             'title': {
-                 'text': 'Month number'}}})
+            datasource=issuedata,
+            series_options=
+              [{'options': {
+                  'type': 'pie',
+                  'stacking': False},
+                'terms': {
+                  'num': [
+                    'quantity']
+                  }}],
+            chart_options=
+              {'title': {
+                   'text': 'Opened/closed issues for project'}},
+            x_sortf_mapf_mts=(None, issue_status, False))
 
-    # Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'weatherchart': cht})
+    #Step 3: Send the chart object to the template.
+    return render_to_response('app/graphs.html', {'issueschart': cht})
+
+
+def user_closed_issues_chart(request, pk):
+
+    charts = Closed_Issue_chart.objects.all()
+    for chart in charts:
+        chart.delete()
+
+    current_user = request.user
+    project = get_object_or_404(Project, pk=pk)
+    status_closed = Status.objects.filter(name='Closed')
+    issues = Issue.objects.filter(project=project, assignedTo=current_user, status=status_closed)
+    for issue in issues:
+        print(issue.finishDate)
+        if Closed_Issue_chart.objects.filter(date=issue.finishDate):
+            closed_chart = Closed_Issue_chart.objects.filter(date=issue.finishDate)
+            closed_chart = closed_chart[0]
+            closed_chart.num += 1
+            closed_chart.save()
+        else:
+            closed_chart = Closed_Issue_chart()
+            closed_chart.date = issue.finishDate
+            closed_chart.num = 1
+            closed_chart.save()
+
+    ds = DataPool(
+       series=
+        [{'options': {
+            'source': Closed_Issue_chart.objects.all()},
+          'terms': [
+            'date',
+            'num']}
+         ])
+
+    cht = Chart(
+        datasource = ds,
+        series_options =
+          [{'options':{
+              'type': 'line',
+              'stacking': False},
+            'terms':{
+              'date': [
+                'num']
+              }}],
+        chart_options =
+          {'title': {
+               'text': 'Number of closed issues for user on project'},
+           'xAxis': {
+                'title': {
+                   'text': 'Datumi završenih issue-a'}}})
+
+    return render_to_response('app/graphs.html', {'issueschart': cht})
+
+
+@login_required
+def git_commit(request, pkProj, pkIssue):
+
+    project = get_object_or_404(Project, pk=pkProj)
+    issue = get_object_or_404(Issue, pk=pkIssue)
+
+    url = project.git+'/commits?sha=develop'
+    response = urlopen(url)
+
+    string = response.read().decode('utf-8')
+    json_obj = json.loads(string)
+    commit_list = []
+    template_name = 'app/commit_list.html'
+    for l in json_obj:
+        a = l['commit']['message']
+        a = a.split(' ')
+        ht = '#'+str(issue.id)
+        if a[0] == ht or a[len(a)-1] == ht:
+            commit_list.append(l['commit']['message'])
+            print(l['commit']['message'])
+    return render(request, template_name, {'commit_list': commit_list})
 
 
 class DateInput(DateInput):
@@ -178,6 +268,8 @@ def issue_update(request, pk):
             issue_history.save()
         #end of code for saving issue history
 
+        if issue.status.name == 'Closed':
+            issue.finishDate = datetime.datetime.now()
         issue.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
