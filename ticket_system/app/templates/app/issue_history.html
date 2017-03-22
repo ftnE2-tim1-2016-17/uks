@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Issue history <small>list</small>
+            </h1>
+        </div>
+    </div>
+
+    <div align="left">
+        <h1>Issue [{{ issue.id }}]: {{ issue.title }}</h1>
+    </div>
+
+    <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>Author</th>
+            <th>Property changed</th>
+            <th>Old value</th>
+            <th>New value</th>
+            <th>Date and time</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for history_item in issue_history %}
+            <tr>
+                <td>{{ history_item.author }}</td>
+                <td>{{ history_item.propertyName }}</td>
+                <td>{{ history_item.oldValue }}</td>
+                <td>{{ history_item.newValue }}</td>
+                <td>{{ history_item.datetime }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}

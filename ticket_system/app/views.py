@@ -17,34 +17,34 @@ from chartit import DataPool, Chart
 def weatherchart(request):
     weatherdata = \
         DataPool(
-           series=
+            series=
             [{'options': {
-               'source': MonthlyWeatherByCity.objects.all()},
+                'source': MonthlyWeatherByCity.objects.all()},
               'terms': [
-                'month',
-                'houston_temp',
-                'boston_temp']}
+                  'month',
+                  'houston_temp',
+                  'boston_temp']}
              ])
 
     cht = Chart(
-            datasource=weatherdata,
-            series_options=
-              [{'options': {
-                  'type': 'line',
-                  'stacking': False},
-                'terms': {
-                  'month': [
-                    'boston_temp',
-                    'houston_temp']
-                  }}],
-            chart_options=
-              {'title': {
-                   'text': 'Weather Data of Boston and Houston'},
-               'xAxis': {
-                    'title': {
-                       'text': 'Month number'}}})
+        datasource=weatherdata,
+        series_options=
+        [{'options': {
+            'type': 'line',
+            'stacking': False},
+          'terms': {
+              'month': [
+                  'boston_temp',
+                  'houston_temp']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Weather Data of Boston and Houston'},
+         'xAxis': {
+             'title': {
+                 'text': 'Month number'}}})
 
-    #Step 3: Send the chart object to the template.
+    # Step 3: Send the chart object to the template.
     return render_to_response('app/graphs.html', {'weatherchart': cht})
 
 
@@ -88,7 +88,7 @@ def issue_detail(request, pk):
 def issue_create(request, pk):
     template_name = 'app/issue_form.html'
     project = get_object_or_404(Project, pk=pk)
-    project_users_ids=[project.project_owner.id]
+    project_users_ids = [project.project_owner.id]
 
     roles_on_projects = RoleOnProject.objects.filter(project=project)
     for i, c in enumerate(roles_on_projects):
@@ -109,6 +109,11 @@ def issue_create(request, pk):
     return render(request, template_name, {'form': form})
 
 
+class UpdateIssueGetAndSet:
+    def __init__(self):
+        self.issue_to_update = None
+
+
 @login_required
 def issue_update(request, pk):
     template_name = 'app/issue_update_form.html'
@@ -122,15 +127,62 @@ def issue_update(request, pk):
     for i, c in enumerate(roles_on_projects):
         if c.user.id not in project_users_ids:
             project_users_ids.append(c.user.id)
-
     form = IssueFormUpdate(project_users_ids, request.POST or None, instance=issue)
     if form.is_valid():
-        issue_updated = form.save(commit=False)
-        issue_updated.timeSpent = time_spent + form.cleaned_data['timeSpent']
-        issue_updated.save()
-        form.save_m2m()
+        issue = form.save(commit=False)
+        issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
 
+        #code for saving issue history
+        old_issue = UpdateIssueGetAndSet.issue_to_update
+        #create history item from ordinary char fields value
+        for attr_update in (vars(issue)).items():
+            for attr in (vars(old_issue)).items():
+                if (attr[0] == attr_update[0]) and (attr[1] != attr_update[1]):
+                    if (attr_update[0] != "_state") and (attr_update[0] != "status_id") and \
+                            (attr_update[0] != "assignedTo_id") and (attr_update[0] != "priority_id"):
+                        issue_history = IssueChange()
+                        issue_history.author = request.user
+                        issue_history.datetime = datetime.datetime.now()
+                        issue_history.issue = issue
+                        issue_history.propertyName = attr_update[0]
+                        issue_history.oldValue = attr[1]
+                        issue_history.newValue = attr_update[1]
+                        issue_history.save()
+        #create issue history when changing foreign key value
+        if old_issue.priority != issue.priority:
+            issue_history = IssueChange()
+            issue_history.author = request.user
+            issue_history.datetime = datetime.datetime.now()
+            issue_history.issue = issue
+            issue_history.propertyName = "priority"
+            issue_history.oldValue = str(old_issue.priority)
+            issue_history.newValue = str(issue.priority)
+            issue_history.save()
+        if old_issue.status != issue.status:
+            issue_history = IssueChange()
+            issue_history.author = request.user
+            issue_history.datetime = datetime.datetime.now()
+            issue_history.issue = issue
+            issue_history.propertyName = "status"
+            issue_history.oldValue = str(old_issue.status)
+            issue_history.newValue = str(issue.status)
+            issue_history.save()
+        if old_issue.assignedTo != issue.assignedTo:
+            issue_history = IssueChange()
+            issue_history.author = request.user
+            issue_history.datetime = datetime.datetime.now()
+            issue_history.issue = issue
+            issue_history.propertyName = "assigned to"
+            issue_history.oldValue = str(old_issue.assignedTo)
+            issue_history.newValue = str(issue.assignedTo)
+            issue_history.save()
+        #end of code for saving issue history
+
+        issue.save()
+        form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
+    issue.timeSpent = time_spent
+    UpdateIssueGetAndSet.issue_to_update = issue
     return render(request, template_name, {'form': form})
 
 
@@ -138,8 +190,8 @@ def issue_update(request, pk):
 def issue_history(request, pk):
     template_name = 'app/issue_history.html'
     issue = get_object_or_404(Issue, pk=pk)
-    issue_history = IssueChange.objects.filter(issue=issue)
-    return render(request, template_name, {'issue_history': issue_history})
+    issue_history = IssueChange.objects.filter(issue=issue).order_by("-datetime")
+    return render(request, template_name, {'issue_history': issue_history, 'issue': issue})
 
 
 @login_required
@@ -150,7 +202,6 @@ def issue_delete(request, pk):
         issue.delete()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
     return render(request, template_name, {'issue': issue})
-
 
 
 @login_required
