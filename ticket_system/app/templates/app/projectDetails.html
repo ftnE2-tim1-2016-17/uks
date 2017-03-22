@@ -34,7 +34,14 @@
         </thead>
         <tbody>
         <br>
-
+        Graphs:
+            <li>
+        <a href="{% url 'chartView' project.id %}">Opened/closed issues for project</a></li>
+        <li>
+        <a href="{% url 'chartView2' project.id %}">Number of closed issues for user on project</a>
+                </li>
+        </li>
+        <br>
         <h2>List of issues on {{ project.name }}</h2>
         {% for issue in issue_list %}
             <tr>
@@ -80,8 +87,6 @@
                 {% bootstrap_icon "plus" %} New issue</button>
         {% endbuttons %}
     </form>
-    <a href="{% url 'chartView' project.id %}"> Charts </a>
-    <a href="{% url 'chartView2' project.id %}"> Charts2 </a>
 
     </div>
 

@@ -10,7 +10,6 @@ from django.forms import ModelForm, DateInput
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
-from . import models
 
 
 def issueschart(request, pk):
@@ -55,7 +54,7 @@ def issueschart(request, pk):
                   }}],
             chart_options=
               {'title': {
-                   'text': 'Odnos otvorenih i zatvorenih issue-a za projekat'}},
+                   'text': 'Opened/closed issues for project'}},
             x_sortf_mapf_mts=(None, issue_status, False))
 
     #Step 3: Send the chart object to the template.
@@ -72,9 +71,7 @@ def user_closed_issues_chart(request, pk):
     project = get_object_or_404(Project, pk=pk)
     status_closed = Status.objects.filter(name='Closed')
     issues = Issue.objects.filter(project=project, assignedTo=current_user, status=status_closed)
-    print('RA')
     for issue in issues:
-        print('GRA')
         print(issue.finishDate)
         if Closed_Issue_chart.objects.filter(date=issue.finishDate):
             closed_chart = Closed_Issue_chart.objects.filter(date=issue.finishDate)
@@ -86,12 +83,6 @@ def user_closed_issues_chart(request, pk):
             closed_chart.date = issue.finishDate
             closed_chart.num = 1
             closed_chart.save()
-
-    chartBla = Closed_Issue_chart.objects.all()
-    print('MARS')
-    for bla in chartBla:
-        print('KURAC')
-        print(bla.date)
 
     ds = DataPool(
        series=
@@ -114,10 +105,10 @@ def user_closed_issues_chart(request, pk):
               }}],
         chart_options =
           {'title': {
-               'text': 'TEXT'},
+               'text': 'Number of closed issues for user on project'},
            'xAxis': {
                 'title': {
-                   'text': 'TEXT 1'}}})
+                   'text': 'Datumi završenih issue-a'}}})
 
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
