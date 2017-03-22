@@ -1,4 +1,6 @@
 import datetime
+import requests
+import json
 from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, Issue_chart, Closed_Issue_chart
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,7 @@ from django.forms import ModelForm, DateInput
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
+from urllib.request import urlopen
 
 
 def issueschart(request, pk):
@@ -111,6 +114,40 @@ def user_closed_issues_chart(request, pk):
                    'text': 'Datumi završenih issue-a'}}})
 
     return render_to_response('app/graphs.html', {'issueschart': cht})
+
+
+def git_commit(request, pkProj, pkIssue):
+    '''r = requests.get('https://api.github.com/repos/ftnE2-tim1-2016-17/uks')
+    print(type(r.content))
+    data = json.load(r.text)
+    print(type(data))'''
+
+    project = get_object_or_404(Project, pk=pkProj)
+    issue = get_object_or_404(Issue, pk=pkIssue)
+
+    print('DZAN GO')
+    print(type(project.git))
+    print(issue.project.name)
+    print('AVIJON se cuje')
+
+    #ftnE2-tim1-2016-17/uks
+    #url = 'https://api.github.com/repos/'+ project.git +'/commits?sha=develop'
+    url = 'https://api.github.com/repos/ftnE2-tim1-2016-17/uks/commits?sha=develop'
+    response = urlopen(url)
+
+    string = response.read().decode('utf-8')
+    json_obj = json.loads(string)
+
+    for l in json_obj:
+        #print(l['commit']['message'])
+        a = l['commit']['message']
+        a = a.split(' ')
+        #print(a[0])
+        if a[0] == 'merge':
+            print(a[0])
+
+    print(type(json_obj))
+    #print(json_obj['sha'])
 
 
 class DateInput(DateInput):
