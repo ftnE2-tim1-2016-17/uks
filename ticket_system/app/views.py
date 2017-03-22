@@ -1,7 +1,7 @@
 import datetime
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Issue, Comment, Project, RoleOnProject, Status, Priority, User, MonthlyWeatherByCity
+from .models import Issue, Comment, Project, RoleOnProject, IssueChange, MonthlyWeatherByCity
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -125,12 +125,21 @@ def issue_update(request, pk):
 
     form = IssueFormUpdate(project_users_ids, request.POST or None, instance=issue)
     if form.is_valid():
-        issue = form.save(commit=False)
-        issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
-        issue.save()
+        issue_updated = form.save(commit=False)
+        issue_updated.timeSpent = time_spent + form.cleaned_data['timeSpent']
+        issue_updated.save()
         form.save_m2m()
+
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
     return render(request, template_name, {'form': form})
+
+
+@login_required
+def issue_history(request, pk):
+    template_name = 'app/issue_history.html'
+    issue = get_object_or_404(Issue, pk=pk)
+    issue_history = IssueChange.objects.filter(issue=issue)
+    return render(request, template_name, {'issue_history': issue_history})
 
 
 @login_required

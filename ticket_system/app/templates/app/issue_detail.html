@@ -40,7 +40,7 @@
 
 
         <br>
-        <li><a href="#">History of {{ issue.title }}</a></li>
+        <li><a href="{% url 'issue-history' %}">History of {{ issue.title }}</a></li>
         <h2>Comments:</h2>
         <form action="{% url 'comment-create' %}" method="post">
             {% csrf_token %}

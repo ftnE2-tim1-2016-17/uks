@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^issue/add/(?P<pk>\d+)$', views.issue_create, name='issue-add'),
     url(r'^issue/update/(?P<pk>\d+)/$', views.issue_update, name='issue-update'),
     url(r'^issue/delete/(?P<pk>\d+)$', views.issue_delete, name='issue-delete'),
+    url(r'^issue/history/(?P<pk>\d+)$', views.issue_history, name='issue-history'),
     url(r'^comment/$', views.comment_create, name='comment-create'),
     url(r'^project/(?P<pk>\d+)$', views.project_detail, name='project_detail'),
     url(r'^projects/list$', views.project_list, name='project'),
