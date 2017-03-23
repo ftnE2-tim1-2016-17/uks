@@ -1,6 +1,7 @@
 import datetime
 import json
 from .models import Issue, Comment, Project, RoleOnProject, Status, IssueChange, Issue_chart, Closed_Issue_chart
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -12,10 +13,11 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
 from urllib.request import urlopen
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm, UserChangeForm
 
 
 def issueschart(request, pk):
-
     charts = Issue_chart.objects.all()
     for chart in charts:
         chart.delete()
@@ -38,33 +40,32 @@ def issueschart(request, pk):
         DataPool(
             series=
             [{'options': {
-               'source': Issue_chart.objects.all()},
+                'source': Issue_chart.objects.all()},
               'terms': [
-                'num',
-                'quantity']}
+                  'num',
+                  'quantity']}
              ])
 
     cht = Chart(
-            datasource=issuedata,
-            series_options=
-              [{'options': {
-                  'type': 'pie',
-                  'stacking': False},
-                'terms': {
-                  'num': [
-                    'quantity']
-                  }}],
-            chart_options=
-              {'title': {
-                   'text': 'Opened/closed issues for project'}},
-            x_sortf_mapf_mts=(None, issue_status, False))
+        datasource=issuedata,
+        series_options=
+        [{'options': {
+            'type': 'pie',
+            'stacking': False},
+          'terms': {
+              'num': [
+                  'quantity']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Opened/closed issues for project'}},
+        x_sortf_mapf_mts=(None, issue_status, False))
 
-    #Step 3: Send the chart object to the template.
+    # Step 3: Send the chart object to the template.
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
 def user_closed_issues_chart(request, pk):
-
     charts = Closed_Issue_chart.objects.all()
     for chart in charts:
         chart.delete()
@@ -87,41 +88,40 @@ def user_closed_issues_chart(request, pk):
             closed_chart.save()
 
     ds = DataPool(
-       series=
+        series=
         [{'options': {
             'source': Closed_Issue_chart.objects.all()},
           'terms': [
-            'date',
-            'num']}
+              'date',
+              'num']}
          ])
 
     cht = Chart(
-        datasource = ds,
-        series_options =
-          [{'options':{
-              'type': 'line',
-              'stacking': False},
-            'terms':{
+        datasource=ds,
+        series_options=
+        [{'options': {
+            'type': 'line',
+            'stacking': False},
+          'terms': {
               'date': [
-                'num']
-              }}],
-        chart_options =
-          {'title': {
-               'text': 'Number of closed issues for user on project'},
-           'xAxis': {
-                'title': {
-                   'text': 'Datumi završenih issue-a'}}})
+                  'num']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Number of closed issues for user on project'},
+         'xAxis': {
+             'title': {
+                 'text': 'Datumi završenih issue-a'}}})
 
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
 @login_required
 def git_commit(request, pkProj, pkIssue):
-
     project = get_object_or_404(Project, pk=pkProj)
     issue = get_object_or_404(Issue, pk=pkIssue)
 
-    url = project.git+'/commits?sha=develop'
+    url = project.git + '/commits?sha=develop'
     response = urlopen(url)
 
     string = response.read().decode('utf-8')
@@ -131,15 +131,11 @@ def git_commit(request, pkProj, pkIssue):
     for l in json_obj:
         a = l['commit']['message']
         a = a.split(' ')
-        ht = '#'+str(issue.id)
-        if a[0] == ht or a[len(a)-1] == ht:
+        ht = '#' + str(issue.id)
+        if a[0] == ht or a[len(a) - 1] == ht:
             commit_list.append(l['commit']['message'])
             print(l['commit']['message'])
     return render(request, template_name, {'commit_list': commit_list})
-
-
-class DateInput(DateInput):
-    input_type = 'date'
 
 
 class IssueFormUpdate(ModelForm):
@@ -222,7 +218,7 @@ def issue_update(request, pk):
         issue = form.save(commit=False)
         issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
 
-        #code for saving issue history
+        # code for saving issue history
         old_issue = UpdateIssueGetAndSet.issue_to_update
         #create history item from ordinary char fields value
         for attr_update in (vars(issue)).items():
@@ -457,3 +453,40 @@ def role_on_project(request, pk):
         form = RoleOnProjectForm(initial={'project': project.id})
 
     return render(request, template_name, {'form': form})
+
+
+class ProfileForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username']
+
+
+@login_required()
+def user_profile(request):
+    template_name = 'app/user_profile.html'
+    return render(request, template_name, {'user': request.user})
+
+
+@login_required
+def user_update(request):
+    template_name = 'app/user_profile_update.html'
+    user = get_object_or_404(User, pk=request.user.id)
+    form = UserChangeForm(request.POST or None, instance=user)
+    if form.is_valid():
+        form.save()
+        return redirect('user-profile')
+    return render(request, template_name, {'form': form})
+
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('user-profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'app/change_password.html', {'form': form})

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+    <p style="color:green; font-size:24px">
+        {% if messages %}
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        {% endif %}
+    </p>
+    <h1>User: {{ user.first_name }} {{ user.last_name }} </h1>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Registration date: {{ user.date_joined }}</p>
+
+    <p>
+    <form action="{% url 'user_update' %}" method="put" style="display: inline">
+        {% buttons %}
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "edit" %}Edit</button>
+        {% endbuttons %}
+     </form>
+     </p>
+     <p>
+     <form action="{% url 'user_password_change' %}" method="put" style="display: inline">
+        {% buttons %}
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "edit" %}Change password</button>
+        {% endbuttons %}
+     </form>
+     </p>
+{% endblock %}

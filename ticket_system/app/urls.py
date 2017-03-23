@@ -1,5 +1,7 @@
 from django.conf.urls import url
 from . import views
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     url(r'^$', views.project_list, name='project'),
@@ -20,9 +22,11 @@ urlpatterns = [
     url(r'^role/update/(?P<pk>\d+)$', views.role_on_project_update, name='roleOnProject_update_form'),
     url(r'^role/delete/(?P<pk>\d+)$', views.role_on_project_delete, name='roleOnProject_confirm_delete'),
     url(r'^issue/commit/(?P<pkProj>\d+)/(?P<pkIssue>\d+)$', views.git_commit, name='commits'),
-
+    url(r'^user/profile$', views.user_profile, name='user-profile'),
+    url(r'^user/update/$', views.user_update, name='user_update'),
     url(r'^charts/(?P<pk>\d+)$', views.issueschart, name='chartView'),
-    url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2')
+    url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2'),
+    url(r'^user/password/$', views.change_password, name='user_password_change')
 
 ]
 
