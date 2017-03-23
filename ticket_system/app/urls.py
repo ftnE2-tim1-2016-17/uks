@@ -22,7 +22,8 @@ urlpatterns = [
     url(r'^issue/commit/(?P<pkProj>\d+)/(?P<pkIssue>\d+)$', views.git_commit, name='commits'),
 
     url(r'^charts/(?P<pk>\d+)$', views.issueschart, name='chartView'),
-    url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2')
+    url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2'),
+    url(r'^charts3/(?P<pk>\d+)$', views.issues_for_user, name='chartView3')
 
 ]
 

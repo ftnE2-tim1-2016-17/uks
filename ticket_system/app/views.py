@@ -1,6 +1,7 @@
 import datetime
 import json
-from .models import Issue, Comment, Project, RoleOnProject, Status, IssueChange, Issue_chart, Closed_Issue_chart
+from .models import Issue, Comment, Project, RoleOnProject, Status, IssueChange, Issue_chart, Closed_Issue_chart, \
+    Issue_for_user
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -16,57 +17,59 @@ from urllib.request import urlopen
 
 @login_required
 def issueschart(request, pk):
-
     charts = Issue_chart.objects.all()
     for chart in charts:
         chart.delete()
 
     project = get_object_or_404(Project, pk=pk)
     status_open = Status.objects.filter(name='New')
+    status_resolved = Status.objects.filter(name='Resolved')
     status_closed = Status.objects.filter(name='Closed')
     open_issues_for_project = Issue.objects.filter(project=project, status=status_open[0])
+    resolved_issues_for_project = Issue.objects.filter(project=project, status=status_resolved[0])
     closed_issues_for_project = Issue.objects.filter(project=project, status=status_closed[0])
     opened_model = Issue_chart(1, 1, len(open_issues_for_project))
     opened_model.save()
-    closed_model = Issue_chart(2, 2, len(closed_issues_for_project))
+    resolved_model = Issue_chart(2, 2, len(resolved_issues_for_project))
+    resolved_model.save()
+    closed_model = Issue_chart(3, 3, len(closed_issues_for_project))
     closed_model.save()
 
     def issue_status(num):
-        status = {1: 'opened', 2: 'closed'}
+        status = {1: 'opened', 2: 'resolved', 3: 'closed'}
         return status[num]
 
     issuedata = \
         DataPool(
             series=
             [{'options': {
-               'source': Issue_chart.objects.all()},
+                'source': Issue_chart.objects.all()},
               'terms': [
-                'num',
-                'quantity']}
+                  'num',
+                  'quantity']}
              ])
 
     cht = Chart(
-            datasource=issuedata,
-            series_options=
-              [{'options': {
-                  'type': 'pie',
-                  'stacking': False},
-                'terms': {
-                  'num': [
-                    'quantity']
-                  }}],
-            chart_options=
-              {'title': {
-                   'text': 'Opened/closed issues for project'}},
-            x_sortf_mapf_mts=(None, issue_status, False))
+        datasource=issuedata,
+        series_options=
+        [{'options': {
+            'type': 'pie',
+            'stacking': False},
+          'terms': {
+              'num': [
+                  'quantity']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Opened/resolved/closed issues for project'}},
+        x_sortf_mapf_mts=(None, issue_status, False))
 
-    #Step 3: Send the chart object to the template.
+    # Step 3: Send the chart object to the template.
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
 @login_required
 def user_closed_issues_chart(request, pk):
-
     charts = Closed_Issue_chart.objects.all()
     for chart in charts:
         chart.delete()
@@ -89,41 +92,106 @@ def user_closed_issues_chart(request, pk):
             closed_chart.save()
 
     ds = DataPool(
-       series=
+        series=
         [{'options': {
             'source': Closed_Issue_chart.objects.all()},
           'terms': [
-            'date',
-            'num']}
+              'date',
+              'num']}
          ])
 
     cht = Chart(
-        datasource = ds,
-        series_options =
-          [{'options':{
-              'type': 'line',
-              'stacking': False},
-            'terms':{
+        datasource=ds,
+        series_options=
+        [{'options': {
+            'type': 'line',
+            'stacking': False},
+          'terms': {
               'date': [
-                'num']
-              }}],
-        chart_options =
-          {'title': {
-               'text': 'Number of closed issues for user on project'},
-           'xAxis': {
-                'title': {
-                   'text': 'Finish dates'}}})
+                  'num']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Number of closed issues for user on project'},
+         'xAxis': {
+             'title': {
+                 'text': 'Finish dates'}}})
 
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
 @login_required
-def git_commit(request, pkProj, pkIssue):
+def issues_for_user(request, pk):
+    charts = Issue_for_user.objects.all()
+    for chart in charts:
+        chart.delete()
 
+    project = get_object_or_404(Project, pk=pk)
+    issues_for_project = Issue.objects.filter(project=project)
+
+    for issue in issues_for_project:
+        bla = Issue_for_user.objects.all()
+        if not bla:
+            issue_FU = Issue_for_user()
+            issue_FU.username = issue.assignedTo.username
+            issue_FU.numOfI = 1
+            issue_FU.save()
+        else:
+            for b in bla:
+                if issue.assignedTo.username == b.username:
+                    b.numOfI += 1
+                    b.save()
+                    break
+                else:
+                    issue_FU = Issue_for_user()
+                    issue_FU.username = issue.assignedTo.username
+                    issue_FU.numOfI = 1
+                    issue_FU.save()
+
+    def issue_dict(username):
+        dict = {}
+        for issue in issues_for_project:
+            if issue.assignedTo.username in dict:
+                dict[issue.assignedTo.username] += 1
+            else:
+                dict[issue.assignedTo.username] = 1
+        return dict[username]
+
+    issuedata = \
+        DataPool(
+            series=
+            [{'options': {
+                'source': Issue_for_user.objects.all()},
+              'terms': [
+                  'username',
+                  'numOfI']}
+             ])
+
+    cht = Chart(
+        datasource=issuedata,
+        series_options=
+        [{'options': {
+            'type': 'pie',
+            'stacking': False},
+          'terms': {
+              'username': [
+                  'numOfI']
+          }}],
+        chart_options=
+        {'title': {
+            'text': 'Assigned issues for users on project'}},
+        x_sortf_mapf_mts=(None, issue_dict, False))
+
+    # Step 3: Send the chart object to the template.
+    return render_to_response('app/graphs.html', {'issueschart': cht})
+
+
+@login_required
+def git_commit(request, pkProj, pkIssue):
     project = get_object_or_404(Project, pk=pkProj)
     issue = get_object_or_404(Issue, pk=pkIssue)
 
-    url = project.git+'/commits?sha=develop'
+    url = project.git + '/commits?sha=develop'
     response = urlopen(url)
 
     string = response.read().decode('utf-8')
@@ -133,8 +201,8 @@ def git_commit(request, pkProj, pkIssue):
     for l in json_obj:
         a = l['commit']['message']
         a = a.split(' ')
-        ht = '#'+str(issue.id)
-        if a[0] == ht or a[len(a)-1] == ht:
+        ht = '#' + str(issue.id)
+        if a[0] == ht or a[len(a) - 1] == ht:
             commit_list.append(l['commit']['message'])
             print(l['commit']['message'])
     return render(request, template_name, {'commit_list': commit_list})
@@ -224,9 +292,9 @@ def issue_update(request, pk):
         issue = form.save(commit=False)
         issue.timeSpent = time_spent + form.cleaned_data['timeSpent']
 
-        #code for saving issue history
+        # code for saving issue history
         old_issue = UpdateIssueGetAndSet.issue_to_update
-        #create history item from ordinary char fields value
+        # create history item from ordinary char fields value
         for attr_update in (vars(issue)).items():
             for attr in (vars(old_issue)).items():
                 if (attr[0] == attr_update[0]) and (attr[1] != attr_update[1]):
@@ -383,6 +451,11 @@ def project_delete(request, pk):
 
 
 class RoleOnProjectForm(ModelForm):
+    def __init__(self, project, *args, **kwargs):
+        super(ModelForm, self).__init__(*args, **kwargs)
+        self.fields['project'].queryset = self.fields['project'].queryset.filter(id__in=project)
+
+
     class Meta:
         model = RoleOnProject
         fields = ['id', 'role', 'user', 'project']
@@ -390,7 +463,10 @@ class RoleOnProjectForm(ModelForm):
 
 @login_required
 def role_on_project_list(request):
-    role_of_project = RoleOnProject.objects.all()
+    project = Project.objects.filter(project_owner=request.user)
+    role_on_project_filter_by_project = RoleOnProject.objects.filter(project=project)
+    role_on_project_filter_by_user_and_role = RoleOnProject.objects.filter(user=request.user, role="administrator")
+    role_of_project = role_on_project_filter_by_project | role_on_project_filter_by_user_and_role
     data = {'roleOnProject_list': role_of_project}
     template_name = 'app/roleOnProject.html'
     return render(request, template_name, data)
@@ -400,7 +476,17 @@ def role_on_project_list(request):
 def role_on_project_create(request):
     role_of_projects = RoleOnProject.objects.all()
     template_name = 'app/roleOnProject_form.html'
-    form = RoleOnProjectForm(request.POST or None)
+    project = []
+    project_filter_by_owner = Project.objects.filter(project_owner=request.user)
+    for i, c in enumerate(project_filter_by_owner):
+        if c.id not in project:
+            project.append(c.id)
+    project_filter_by_admin_role = RoleOnProject.objects.filter(user=request.user, role="administrator")
+    for i, c in enumerate(project_filter_by_admin_role):
+        if c.project.id not in project:
+            project.append(c.project.id)
+    print(project)
+    form = RoleOnProjectForm(project, request.POST or None)
     if form.is_valid():
         for i, c in enumerate(role_of_projects):
             if (form.cleaned_data['user'] == c.user) and (form.cleaned_data['project'] == c.project):
@@ -418,7 +504,7 @@ def role_on_project_update(request, pk):
     role_of_projects = RoleOnProject.objects.all()
     template_name = 'app/roleOnProject_update_form.html'
     role_on_project = get_object_or_404(RoleOnProject, pk=pk)
-    form = RoleOnProjectForm(request.POST or None, instance=role_on_project)
+    form = RoleOnProjectForm(request.user, request.POST or None, instance=role_on_project)
     if form.is_valid():
         for i, c in enumerate(role_of_projects):
             if (form.cleaned_data['user'] == c.user) and (form.cleaned_data['project'] == c.project):

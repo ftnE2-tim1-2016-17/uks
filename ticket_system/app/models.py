@@ -78,6 +78,11 @@ class Closed_Issue_chart(models.Model):
     num = models.IntegerField()
 
 
+class Issue_for_user(models.Model):
+    username = models.CharField(max_length=100)
+    numOfI = models.IntegerField()
+
+
 class Issue(models.Model):
     type = models.CharField(max_length=50, null=True)
     title = models.CharField(max_length=100)

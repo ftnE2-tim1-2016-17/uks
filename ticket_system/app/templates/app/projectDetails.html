@@ -52,11 +52,14 @@
         <br>
         Graphs:
             <li>
-        <a href="{% url 'chartView' project.id %}">Opened/closed issues for project</a></li>
-        <li>
+        <a href="{% url 'chartView' project.id %}">Opened/resolved/closed issues for project</a>
+            </li>
+            <li>
         <a href="{% url 'chartView2' project.id %}">Number of closed issues for user on project</a>
-                </li>
-        </li>
+            </li>
+            <li>
+        <a href="{% url 'chartView3' project.id %}">Assigned issues for users on project</a>
+            </li>
         <br>
         <h2>List of issues on {{ project.name }}</h2>
         {% for issue in issue_list %}
