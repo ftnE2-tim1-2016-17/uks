@@ -53,7 +53,9 @@
                 <td>{{ issue.assignedTo }}</td>
                 <td>{{ issue.timeSpent }}</td>
                 <td>{{ issue.donePercentage }} %</td>
+                {% if project.git %}
                 <td><a href="{% url 'commits' pkProj=project.id pkIssue=issue.id%}">Commits</a></td>
+                {% endif %}
                 <td>
                     <div style="float: left">
                         <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
