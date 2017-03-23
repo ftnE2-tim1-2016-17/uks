@@ -7,9 +7,23 @@
 {% endblock active %}
 
 {% block content %}
-    <div align="left">
+
         <h1>Issue [{{ issue.id }}]: {{ issue.title }}</h1>
-        <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
+        Type: {{ issue.type }}<br>
+        Created by: {{ issue.createdBy }}<br>
+        Project: {{ issue.project }}<br>
+        Status: {{ issue.status }}<br>
+        Priority: {{ issue.priority }}<br>
+        Assigned to: {{ issue.assignedTo }}<br>
+        Start date: {{ issue.startDate }}<br>
+        End date: {{ issue.endDate }}<br>
+        Spent time: {{ issue.spentTime }}<br>
+        Done percentage: {{ issue.donePercentage}}<br>
+
+        Description: {{ issue.description }}<br>
+    <br>
+
+    <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
             {% csrf_token %}
             {% buttons %}
                 <button type="submit" class="btn btn-primary" >
@@ -25,18 +39,6 @@
             {% endbuttons %}
         </form>
 
-        Type: {{ issue.type }}<br>
-        Created by: {{ issue.createdBy }}<br>
-        Project: {{ issue.project }}<br>
-        Status: {{ issue.status }}<br>
-        Priority: {{ issue.priority }}<br>
-        Assigned to: {{ issue.assignedTo }}<br>
-        Start date: {{ issue.startDate }}<br>
-        End date: {{ issue.endDate }}<br>
-        Spent time: {{ issue.spentTime }}<br>
-        Done percentage: {{ issue.donePercentage}}<br>
-
-        Description: {{ issue.description }}<br>
 
 
         <br>
@@ -58,6 +60,5 @@
             </blockquote>
         {% endfor %}
 
-    </div>
 {% endblock content %}
 
