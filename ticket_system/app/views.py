@@ -2,6 +2,7 @@ import datetime
 import json
 from .models import Issue, Comment, Project, RoleOnProject, Status, IssueChange, Issue_chart, Closed_Issue_chart, \
     Issue_for_user
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -13,6 +14,8 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
 from urllib.request import urlopen
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm, UserChangeForm
 
 
 @login_required
@@ -206,10 +209,6 @@ def git_commit(request, pkProj, pkIssue):
             commit_list.append(l['commit']['message'])
             print(l['commit']['message'])
     return render(request, template_name, {'commit_list': commit_list})
-
-
-class DateInput(DateInput):
-    input_type = 'date'
 
 
 class IssueFormUpdate(ModelForm):
@@ -545,3 +544,41 @@ def role_on_project(request, pk):
         form = RoleOnProjectForm(initial={'project': project.id})
 
     return render(request, template_name, {'form': form})
+
+
+class ProfileForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username']
+
+
+@login_required()
+def user_profile(request):
+    template_name = 'app/user_profile.html'
+    return render(request, template_name, {'user': request.user})
+
+
+@login_required
+def user_update(request):
+    template_name = 'app/user_profile_update.html'
+    user = get_object_or_404(User, pk=request.user.id)
+    form = UserChangeForm(request.POST or None, instance=user)
+    if form.is_valid():
+        form.save()
+        return redirect('user-profile')
+    return render(request, template_name, {'form': form})
+
+
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('user-profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'app/change_password.html', {'form': form})
