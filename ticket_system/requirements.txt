@@ -1,0 +1,12 @@
+unipath
+psycopg2
+uwsgi
+Django==1.10.5
+gunicorn==19.3.0
+django-registration
+django-bootstrap3
+django-finalware
+Pillow
+selenium
+PyYAML==3.12
+django_chartit

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block html %}
+    <head>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+        {% load chartit %}
+        {{issueschart|load_charts:"container"}}
+    </head>
+{% endblock html %}
+{% block content %}
+    <div id='container'></div>
+{% endblock content %}
+
+

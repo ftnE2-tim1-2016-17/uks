@@ -1,0 +1,21 @@
+{% load bootstrap3 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block bootstrap3_content %}
+
+    <div class="container" align="center">
+        <div style="width: 30%; border: 2px solid #d3d3d3; border-radius: 15px; padding: 20px; margin-top: 100px"
+             class="row">
+            <h1>{% block title %}{% endblock %}</h1>
+
+            {% bootstrap_messages %}
+
+            <div class="span12 box">
+                {% block content %}
+                {% endblock content %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

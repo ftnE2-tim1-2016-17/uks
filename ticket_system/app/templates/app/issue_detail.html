@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block active %}
+    class="active"
+{% endblock active %}
+
+{% block content %}
+    <div align="left">
+        <h1>Issue [{{ issue.id }}]: {{ issue.title }}</h1>
+        <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
+            {% csrf_token %}
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "edit" %} Edit</button>
+            {% endbuttons %}
+        </form>
+        <form action="{% url 'issue-delete' issue.id %}" method="post" style="display: inline">
+            {% csrf_token %}
+            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "trash" %} Delete</button>
+            {% endbuttons %}
+        </form>
+
+        Type: {{ issue.type }}<br>
+        Created by: {{ issue.createdBy }}<br>
+        Project: {{ issue.project }}<br>
+        Status: {{ issue.status }}<br>
+        Priority: {{ issue.priority }}<br>
+        Assigned to: {{ issue.assignedTo }}<br>
+        Start date: {{ issue.startDate }}<br>
+        End date: {{ issue.endDate }}<br>
+        Spent time: {{ issue.spentTime }}<br>
+        Done percentage: {{ issue.donePercentage}}<br>
+
+        Description: {{ issue.description }}<br>
+
+
+        <br>
+        <li><a href="{% url 'issue-history' issue.id %}">History of {{ issue.title }}</a></li>
+        <h2>Comments:</h2>
+        <form action="{% url 'comment-create' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+            <textarea name="comment" rows="10" cols="60"></textarea>
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "floppy-disk" %} Comment</button>
+            {% endbuttons %}
+        </form>
+        {% for comment in comment_list %}
+            <blockquote>
+                <p>{{ comment }}</p>
+                <footer>{{ comment.author }} {{ comment.datetime }}</footer>
+            </blockquote>
+        {% endfor %}
+
+    </div>
+{% endblock content %}
+

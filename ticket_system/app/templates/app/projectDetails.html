@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+
+        <h1>{{ project.name }}</h1>
+            <p><b>Key:</b> {{ project.key }}</p>
+            <p><b>Project owner:</b> {{ project.project_owner }}</p>
+            <p><b>Description:</b> {{ project.description }}</p>
+            <p><b>Start date:</b> {{ project.startDate }}</p>
+            <p><b>End date:</b> {{ project.endDate }}</p>
+            <p><b>GIT:</b> {{ project.git }}</p>
+
+    <form action="{% url 'roleOnProjectFromProject_form' project.id %}" method="get" class="form">
+        {% buttons %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "user" %} Add user on project</button>
+        {% endbuttons %}
+    </form>
+
+        <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Assigned To</th>
+            <th>Spent time</th>
+            <th>Done percentage</th>
+        </tr>
+        </thead>
+        <tbody>
+        <br>
+        Graphs:
+            <li>
+        <a href="{% url 'chartView' project.id %}">Opened/closed issues for project</a></li>
+        <li>
+        <a href="{% url 'chartView2' project.id %}">Number of closed issues for user on project</a>
+                </li>
+        </li>
+        <br>
+        <h2>List of issues on {{ project.name }}</h2>
+        {% for issue in issue_list %}
+            <tr>
+                <td>{{ issue.id }}</td>
+                <td><a href="{% url 'issue-detail' issue.id%}">{{ issue.title }}</a></td>
+                <td>{{ issue.type }}</td>
+                <td>{{ issue.status }}</td>
+                <td>{{ issue.priority }}</td>
+                <td>{{ issue.assignedTo }}</td>
+                <td>{{ issue.timeSpent }}</td>
+                <td>{{ issue.donePercentage }} %</td>
+                <td><a href="{% url 'commits' pkProj=project.id pkIssue=issue.id%}">Commits</a></td>
+                <td>
+                    <div style="float: left">
+                        <form action="{% url 'issue-update' issue.id %}" method="put" style="display: inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="issue_id" value="{{ issue.id }}" />
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "edit" %}</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                    <div style="float: left; padding-left: 5px">
+                        <form action="{% url 'issue-delete' issue.id %}" method="delete" style="display: inline">
+                            {% csrf_token %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "trash" %}</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div align="center">
+    <form action="{% url 'issue-add' project.id %}" method="" style="display: inline">
+        {% csrf_token %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary" >
+                {% bootstrap_icon "plus" %} New issue</button>
+        {% endbuttons %}
+    </form>
+
+    </div>
+
+{% endblock %}

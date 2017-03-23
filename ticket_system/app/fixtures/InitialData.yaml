@@ -1,0 +1,42 @@
+- model: app.priority
+  pk: 1
+  fields:
+    name: Low
+    key: low
+    marker: silver
+- model: app.priority
+  pk: 2
+  fields:
+    name: Normal
+    key: normal
+    marker: silver
+- model: app.priority
+  pk: 3
+  fields:
+    name: High
+    key: high
+    marker: silver
+- model: app.status
+  pk: 1
+  fields:
+    name: New
+    key: new
+    marker: silver
+- model: app.status
+  pk: 2
+  fields:
+    name: InProgress
+    key: inprogress
+    marker: silver
+- model: app.status
+  pk: 2
+  fields:
+    name: Resolved
+    key: resolved
+    marker: silver
+- model: app.status
+  pk: 3
+  fields:
+    name: Closed
+    key: closed
+    marker: silver

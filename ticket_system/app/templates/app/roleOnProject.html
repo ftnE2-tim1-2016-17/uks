@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                User role on project <small>list</small>
+            </h1>
+        </div>
+    </div>
+    <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Project</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for roleOnProject in roleOnProject_list %}
+            <tr>
+                <td>{{ roleOnProject.user }}</td>
+                <td>{{ roleOnProject.role }}</td>
+                <td>{{ roleOnProject.project.name }}</td>
+                <td>
+                    <div style="float: left">
+                        <form action="{% url 'roleOnProject_update_form' roleOnProject.id %}" method="put" class="form">
+                            {% csrf_token %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "edit" %}</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                    <div style="float: left; padding-left: 5px">
+                        <form action="{% url 'roleOnProject_confirm_delete' roleOnProject.id %}" method="delete" class="form">
+                            {% csrf_token %}
+                            {% buttons %}
+                                <button type="submit" class="btn btn-primary" >
+                                    {% bootstrap_icon "trash" %}</button>
+                            {% endbuttons %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+        <form action="{% url 'roleOnProject_form' %}" method="get" class="form">
+            {% csrf_token %}
+            {% buttons %}
+                <button type="submit" class="btn btn-primary" >
+                    {% bootstrap_icon "insert" %} New user on project</button>
+            {% endbuttons %}
+        </form>
+
+
+{% endblock %}
