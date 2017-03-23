@@ -28,5 +28,11 @@
         <button type="submit" class="btn btn-primary"> Confirm</button>
         {% endbuttons %}
     </form>
+    <form action="{% url 'project_detail' project %}" method="get" class="form">
+        {% csrf_token %}
+        {% buttons %}
+        <button type="submit" class="btn btn-primary"> Cancel</button>
+        {% endbuttons %}
+    </form>
 
 {% endblock content %}

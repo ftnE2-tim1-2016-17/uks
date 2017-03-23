@@ -17,6 +17,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm, UserChangeForm
 
 
+@login_required
 def issueschart(request, pk):
     charts = Issue_chart.objects.all()
     for chart in charts:
@@ -33,7 +34,7 @@ def issueschart(request, pk):
     closed_model.save()
 
     def issue_status(num):
-        status = {1: 'otvoren', 2: 'zatvoren'}
+        status = {1: 'opened', 2: 'closed'}
         return status[num]
 
     issuedata = \
@@ -65,6 +66,7 @@ def issueschart(request, pk):
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
 
+@login_required
 def user_closed_issues_chart(request, pk):
     charts = Closed_Issue_chart.objects.all()
     for chart in charts:
@@ -111,7 +113,7 @@ def user_closed_issues_chart(request, pk):
             'text': 'Number of closed issues for user on project'},
          'xAxis': {
              'title': {
-                 'text': 'Datumi završenih issue-a'}}})
+                 'text': 'Finish dates'}}})
 
     return render_to_response('app/graphs.html', {'issueschart': cht})
 
@@ -192,7 +194,7 @@ def issue_create(request, pk):
         issue.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
-    return render(request, template_name, {'form': form})
+    return render(request, template_name, {'form': form, 'project': project})
 
 
 class UpdateIssueGetAndSet:
@@ -220,7 +222,7 @@ def issue_update(request, pk):
 
         # code for saving issue history
         old_issue = UpdateIssueGetAndSet.issue_to_update
-        #create history item from ordinary char fields value
+        # create history item from ordinary char fields value
         for attr_update in (vars(issue)).items():
             for attr in (vars(old_issue)).items():
                 if (attr[0] == attr_update[0]) and (attr[1] != attr_update[1]):
@@ -271,7 +273,7 @@ def issue_update(request, pk):
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
     issue.timeSpent = time_spent
     UpdateIssueGetAndSet.issue_to_update = issue
-    return render(request, template_name, {'form': form})
+    return render(request, template_name, {'form': form, 'project': project})
 
 
 @login_required
@@ -289,7 +291,7 @@ def issue_delete(request, pk):
     if request.method == 'POST':
         issue.delete()
         return HttpResponseRedirect(reverse('project_detail', kwargs={'pk': issue.project.id}))
-    return render(request, template_name, {'issue': issue})
+    return render(request, template_name, {'issue': issue, 'project': issue.project.id})
 
 
 @login_required
@@ -362,7 +364,7 @@ def project_update(request, pk):
     form = ProjectForm(request.POST or None, instance=project)
     if form.is_valid():
         form.save()
-        return redirect('project')
+        return redirect('project_detail', pk=project.id)
     return render(request, template_name, {'form': form})
 
 
@@ -476,6 +478,7 @@ def user_update(request):
         form.save()
         return redirect('user-profile')
     return render(request, template_name, {'form': form})
+
 
 def change_password(request):
     if request.method == 'POST':
