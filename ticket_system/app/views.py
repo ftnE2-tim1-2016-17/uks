@@ -154,10 +154,7 @@ def issues_for_user(request, pk):
     def issue_dict(username):
         dict = {}
         for issue in issues_for_project:
-            if issue.assignedTo.username in dict:
-                dict[issue.assignedTo.username] += 1
-            else:
-                dict[issue.assignedTo.username] = 1
+            dict[issue.assignedTo.username] = issue.assignedTo.username
         return dict[username]
 
     issuedata = \
