@@ -451,7 +451,6 @@ class RoleOnProjectForm(ModelForm):
         super(ModelForm, self).__init__(*args, **kwargs)
         self.fields['project'].queryset = self.fields['project'].queryset.filter(id__in=project)
 
-
     class Meta:
         model = RoleOnProject
         fields = ['id', 'role', 'user', 'project']
