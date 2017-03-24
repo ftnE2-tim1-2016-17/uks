@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
@@ -27,7 +28,8 @@ urlpatterns = [
     url(r'^charts/(?P<pk>\d+)$', views.issueschart, name='chartView'),
     url(r'^charts2/(?P<pk>\d+)$', views.user_closed_issues_chart, name='chartView2'),
     url(r'^charts3/(?P<pk>\d+)$', views.issues_for_user, name='chartView3'),
-    url(r'^user/password/$', views.change_password, name='user_password_change')
+    url(r'^user/password/$', views.change_password, name='user_password_change'),
+    url(r'^badGitUrl/$', TemplateView.as_view(template_name="app/bad_git_url.html"), name='bad_git_url')
 
 ]
 
