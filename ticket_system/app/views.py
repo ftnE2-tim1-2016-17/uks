@@ -467,13 +467,21 @@ class RoleOnProjectForm(ModelForm):
 @login_required
 def role_on_project_list(request):
     project = Project.objects.filter(project_owner=request.user)
-    role_on_project_filter_by_project = RoleOnProject.objects.filter(project=project)
+    role_on_project_list = []
+    project_list = []
+    for i, c in enumerate(project):
+        project_list.append(c)
+    for project in project_list:
+        one_role_on_project = RoleOnProject.objects.filter(project=project)
+        for i, c in enumerate(one_role_on_project):
+            role_on_project_list.append(c)
     role_on_project_filter_by_user_and_role = RoleOnProject.objects.filter(user=request.user, role="administrator")
-    role_of_project = role_on_project_filter_by_project | role_on_project_filter_by_user_and_role
-    data = {'roleOnProject_list': role_of_project}
+    for i, c in enumerate(role_on_project_filter_by_user_and_role):
+        if c not in role_on_project_list:
+            role_on_project_list.append(c)
+    data = {'roleOnProject_list': role_on_project_list}
     template_name = 'app/roleOnProject.html'
     return render(request, template_name, data)
-
 
 @login_required
 def role_on_project_create(request):
