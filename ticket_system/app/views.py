@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import URLValidator
 from django.shortcuts import render, get_object_or_404, redirect
 from django import forms
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from chartit import DataPool, Chart
@@ -195,7 +195,12 @@ def git_commit(request, pkProj, pkIssue):
     response = urlopen(url)
 
     string = response.read().decode('utf-8')
-    json_obj = json.loads(string)
+    json_obj = {}
+    try:
+        json_obj = json.loads(string)
+    except Exception:
+        print('bla bla')
+        return redirect('bad_git_url')
     commit_list = []
     template_name = 'app/commit_list.html'
     for l in json_obj:
@@ -207,6 +212,9 @@ def git_commit(request, pkProj, pkIssue):
             print(l['commit']['message'])
     return render(request, template_name, {'commit_list': commit_list})
 
+
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 class IssueFormUpdate(ModelForm):
     def __init__(self, project_users_ids, *args, **kwargs):
@@ -223,7 +231,6 @@ class IssueFormUpdate(ModelForm):
         widgets = {
             'endDate': DateInput(),
         }
-
 
 class IssueFormCreate(IssueFormUpdate):
     class Meta(IssueFormUpdate.Meta):
@@ -545,7 +552,8 @@ def role_on_project(request, pk):
             form.save_m2m()
             return redirect('roleOnProject')
     else:
-        form = RoleOnProjectForm(initial={'project': project.id})
+        #form = RoleOnProjectForm(initial={'project': project.id})
+        form = RoleOnProjectForm([project.id])
 
     return render(request, template_name, {'form': form})
 
