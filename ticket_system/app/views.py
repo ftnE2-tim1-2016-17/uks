@@ -68,7 +68,7 @@ def issueschart(request, pk):
         x_sortf_mapf_mts=(None, issue_status, False))
 
     # Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project})
 
 
 @login_required
@@ -120,7 +120,7 @@ def user_closed_issues_chart(request, pk):
              'title': {
                  'text': 'Finish dates'}}})
 
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project})
 
 
 @login_required
@@ -183,23 +183,23 @@ def issues_for_user(request, pk):
         x_sortf_mapf_mts=(None, issue_dict, False))
 
     # Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project})
 
 
 @login_required
 def git_commit(request, pkProj, pkIssue):
-    project = get_object_or_404(Project, pk=pkProj)
-    issue = get_object_or_404(Issue, pk=pkIssue)
 
-    url = project.git + '/commits?sha=develop'
-    response = urlopen(url)
-
-    string = response.read().decode('utf-8')
-    json_obj = {}
     try:
+        project = get_object_or_404(Project, pk=pkProj)
+        issue = get_object_or_404(Issue, pk=pkIssue)
+
+        url = project.git + '/commits?sha=master'
+        response = urlopen(url)
+
+        string = response.read().decode('utf-8')
+        json_obj = {}
         json_obj = json.loads(string)
     except Exception:
-        print('bla bla')
         return redirect('bad_git_url')
     commit_list = []
     template_name = 'app/commit_list.html'
@@ -210,7 +210,7 @@ def git_commit(request, pkProj, pkIssue):
         if a[0] == ht or a[len(a) - 1] == ht:
             commit_list.append(l['commit']['message'])
             print(l['commit']['message'])
-    return render(request, template_name, {'commit_list': commit_list})
+    return render(request, template_name, {'commit_list': commit_list, 'project': project})
 
 
 class DateInput(forms.DateInput):
@@ -476,8 +476,10 @@ def role_on_project_list(request):
             role_on_project_list.append(c)
     role_on_project_filter_by_user_and_role = RoleOnProject.objects.filter(user=request.user, role="administrator")
     for i, c in enumerate(role_on_project_filter_by_user_and_role):
-        if c not in role_on_project_list:
-            role_on_project_list.append(c)
+        role = RoleOnProject.objects.filter(project=c.project)
+        for j, k in enumerate(role):
+            if k not in role_on_project_list:
+                role_on_project_list.append(k)
     data = {'roleOnProject_list': role_on_project_list}
     template_name = 'app/roleOnProject.html'
     return render(request, template_name, data)

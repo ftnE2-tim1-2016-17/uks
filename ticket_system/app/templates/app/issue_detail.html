@@ -8,6 +8,16 @@
 
 {% block content %}
 
+    <div class="row">
+        <div class="col-lg-12">
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-dashboard"></i>  <a href="{% url 'project_detail' issue.project.id  %}">project detail</a>
+                </li>
+            </ol>
+        </div>
+    </div>
+
         <h1>Issue [{{ issue.id }}]: {{ issue.title }}</h1>
         Type: {{ issue.type }}<br>
         Created by: {{ issue.createdBy }}<br>
