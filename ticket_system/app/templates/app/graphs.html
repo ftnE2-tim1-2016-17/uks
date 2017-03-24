@@ -11,6 +11,18 @@
     </head>
 {% endblock html %}
 {% block content %}
+        <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Graphs
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-dashboard"></i>  <a href="{% url 'project_detail' project.id  %}">project detail</a>
+                </li>
+            </ol>
+        </div>
+    </div>
     <div id='container'></div>
 {% endblock content %}
 

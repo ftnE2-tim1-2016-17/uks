@@ -68,7 +68,7 @@ def issueschart(request, pk):
         x_sortf_mapf_mts=(None, issue_status, False))
 
     # Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project, 'user': request.user})
 
 
 @login_required
@@ -120,7 +120,7 @@ def user_closed_issues_chart(request, pk):
              'title': {
                  'text': 'Finish dates'}}})
 
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project, 'user': request.user})
 
 
 @login_required
@@ -140,16 +140,21 @@ def issues_for_user(request, pk):
             issue_FU.numOfI = 1
             issue_FU.save()
         else:
+            nesto = 1
             for b in bla:
                 if issue.assignedTo.username == b.username:
                     b.numOfI += 1
                     b.save()
+                    nesto = 1
                     break
                 else:
-                    issue_FU = Issue_for_user()
-                    issue_FU.username = issue.assignedTo.username
-                    issue_FU.numOfI = 1
-                    issue_FU.save()
+                    nesto = 0
+            if nesto == 0:
+                issue_FU = Issue_for_user()
+                issue_FU.username = issue.assignedTo.username
+                issue_FU.numOfI = 1
+                issue_FU.save()
+
 
     def issue_dict(username):
         dict = {}
@@ -183,34 +188,38 @@ def issues_for_user(request, pk):
         x_sortf_mapf_mts=(None, issue_dict, False))
 
     # Step 3: Send the chart object to the template.
-    return render_to_response('app/graphs.html', {'issueschart': cht})
+    return render_to_response('app/graphs.html', {'issueschart': cht, 'project': project, 'user': request.user})
 
 
 @login_required
 def git_commit(request, pkProj, pkIssue):
-    project = get_object_or_404(Project, pk=pkProj)
-    issue = get_object_or_404(Issue, pk=pkIssue)
 
-    url = project.git + '/commits?sha=develop'
-    response = urlopen(url)
-
-    string = response.read().decode('utf-8')
-    json_obj = {}
     try:
+        project = get_object_or_404(Project, pk=pkProj)
+        issue = get_object_or_404(Issue, pk=pkIssue)
+
+        url = project.git + '/commits?sha=master'
+        response = urlopen(url)
+
+        string = response.read().decode('utf-8')
+        json_obj = {}
         json_obj = json.loads(string)
     except Exception:
-        print('bla bla')
         return redirect('bad_git_url')
     commit_list = []
+    html_url_list = []
     template_name = 'app/commit_list.html'
     for l in json_obj:
         a = l['commit']['message']
         a = a.split(' ')
         ht = '#' + str(issue.id)
         if a[0] == ht or a[len(a) - 1] == ht:
+            html_url = l['html_url']
+            html_url_list.append(html_url)
             commit_list.append(l['commit']['message'])
             print(l['commit']['message'])
-    return render(request, template_name, {'commit_list': commit_list})
+        list = zip(commit_list, html_url_list)
+    return render(request, template_name, {'commit_list': commit_list, 'project': project, 'html_url_list': html_url_list, 'list': list})
 
 
 class DateInput(forms.DateInput):
@@ -476,8 +485,10 @@ def role_on_project_list(request):
             role_on_project_list.append(c)
     role_on_project_filter_by_user_and_role = RoleOnProject.objects.filter(user=request.user, role="administrator")
     for i, c in enumerate(role_on_project_filter_by_user_and_role):
-        if c not in role_on_project_list:
-            role_on_project_list.append(c)
+        role = RoleOnProject.objects.filter(project=c.project)
+        for j, k in enumerate(role):
+            if k not in role_on_project_list:
+                role_on_project_list.append(k)
     data = {'roleOnProject_list': role_on_project_list}
     template_name = 'app/roleOnProject.html'
     return render(request, template_name, data)
