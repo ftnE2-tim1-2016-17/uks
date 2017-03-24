@@ -16,8 +16,8 @@
             </ol>
         </div>
     </div>
-    {% for commit in commit_list %}
-        <li> {{ commit }} </li>
+    {% for item1, item2 in list %}
+        <li> <a href="{{ item2 }}">{{ item1 }}</a></li>
     {% endfor %}
 
 {% endblock content %}
